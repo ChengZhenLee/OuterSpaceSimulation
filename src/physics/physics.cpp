@@ -79,6 +79,7 @@ void updateVelocity(CelestialBody &body, Eigen::Matrix<float, 3, 1> &acceleratio
     body.velocity = body.velocity + acceleration * (1.0f / fps);
 };
 
+
 void updateBodies(std::vector<CelestialBody> &bodies) {
     int length = bodies.size();
     std::vector<Eigen::Matrix<float, 3, 1>> F;
