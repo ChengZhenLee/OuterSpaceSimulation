@@ -18,4 +18,6 @@ typedef struct CelestialBody {
 
 void updateBodies(std::vector<CelestialBody> &bodies);
 
+
+float getPotentialHeight(float x, float z, const std::vector<double>& masses, const std::vector<Eigen::Matrix<float, 3, 1>>& positions);
 #endif
