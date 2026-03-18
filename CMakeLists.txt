@@ -15,9 +15,21 @@ add_executable(OuterSpaceSimulation
     src/visuals/visuals.cpp)
 
 # Link the library files
-target_link_libraries(OuterSpaceSimulation 
-    "${CMAKE_CURRENT_SOURCE_DIR}/lib/libraylib.a"
-    opengl32
-    gdi32
-    winmm
-)
+if(WIN32)
+    target_link_libraries(OuterSpaceSimulation 
+        "${CMAKE_CURRENT_SOURCE_DIR}/lib/libraylib.a"
+        opengl32
+        gdi32
+        winmm
+    )
+else(APPLE)
+    find_library(RAYLIB_LIB raylib)
+
+    target_link_libraries(OuterSpaceSimulation 
+        ${RAYLIB_LIB}
+        "-framework IOKit"
+        "-framework Cocoa"
+        "-framework OpenGL"
+        "-framework CoreVideo"
+    )
+endif()
