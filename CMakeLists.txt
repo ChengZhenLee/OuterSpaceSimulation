@@ -7,9 +7,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Include the headers
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-# Link the library files
-link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/constants)
 
 # Include the source
-add_executable(OuterSpaceSimulation src/main.cpp)
+add_executable(OuterSpaceSimulation 
+    src/main.cpp
+    src/visuals/visuals.cpp)
+
+# Link the library files
+target_link_libraries(OuterSpaceSimulation 
+    "${CMAKE_CURRENT_SOURCE_DIR}/lib/libraylib.a"
+    opengl32
+    gdi32
+    winmm
+)
