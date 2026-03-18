@@ -16,4 +16,6 @@ typedef struct CelestialBody {
     Eigen::Matrix<float, 3, 1> force;
 } CelestialBody;
 
+void updateBodies(std::vector<CelestialBody> bodies);
+
 #endif
