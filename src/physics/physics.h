@@ -11,9 +11,9 @@ typedef struct CelestialBody {
     double mass;
     float radius;
 
-    Eigen::Vector3d position;
-    Eigen::Vector3d velocity;
-    Eigen::Vector3d force;
+    Eigen::Matrix<float, 3, 1> position;
+    Eigen::Matrix<float, 3, 1> velocity;
+    Eigen::Matrix<float, 3, 1> force;
 } CelestialBody;
 
 #endif
