@@ -55,7 +55,7 @@ void calculateForces(
 
     // Seed
     A::tape::init_adjoints();
-    y.adjoint(1);
+    y.adjoint() = 1;
 
     // Interpret
     A::tape::interpret();
@@ -63,10 +63,12 @@ void calculateForces(
     // Accumulate the derivatives
     // F = -dU/dx
     for (int i = 0; i < length; i++) {
-        F[i][0] = -x[i][0].adjoint();
-        F[i][1] = -x[i][1].adjoint();
-        F[i][2] = -x[i][2].adjoint();
+        F[i][0] = x[i][0].adjoint();
+        F[i][1] = x[i][1].adjoint();
+        F[i][2] = x[i][2].adjoint();
     }
+
+    A::tape::reset();
 }
 
 
@@ -82,7 +84,7 @@ void updateVelocity(CelestialBody &body, Eigen::Matrix<float, 3, 1> &acceleratio
 
 void updateBodies(std::vector<CelestialBody> &bodies) {
     int length = bodies.size();
-    std::vector<Eigen::Matrix<float, 3, 1>> F;
+    std::vector<Eigen::Matrix<float, 3, 1>> F(length);
     std::vector<double> masses(length);
     std::vector<float> radii(length);
     std::vector<Eigen::Matrix<float, 3, 1>> positions(length);

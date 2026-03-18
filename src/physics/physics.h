@@ -5,7 +5,7 @@
 #include "raylib.h"
 
 typedef struct CelestialBody {
-    char* name;
+    std::string name;
     Color color;
 
     double mass;
