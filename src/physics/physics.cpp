@@ -1,7 +1,6 @@
 #include "ad.h"
 #include <Eigen/Dense>
 #include "constants.h"
-#include "physics.h"
 
 
 template<typename T>
@@ -12,7 +11,7 @@ void calculatePotentialEnergy(
     T &potentialEnergy
 ) 
 {
-    int length = masses.size();
+    int length = masses.size(); 
 
     for (int i = 0; i < length; i++) {
         for (int j = i + 1; j < length; j++) {
@@ -27,15 +26,15 @@ void calculatePotentialEnergy(
 }
 
 
-void calculateForces(
+std::vector<Eigen::Matrix<float, 3, 1>> calculateForces(
     std::vector<double> masses, 
-    std::vector<float> radii,
     std::vector<Eigen::Matrix<float, 3, 1>> positions,
-    std::vector<Eigen::Matrix<float, 3, 1>> &F
+    std::vector<float> radii
 ) {
     using A = ad::adjoint_t<float>;
 
     int length = masses.size();
+    std::vector<Eigen::Matrix<float, 3, 1>> F(length);
     std::vector<Eigen::Matrix<A, 3, 1>> x(length);
     A y;
 
@@ -67,36 +66,26 @@ void calculateForces(
         F[i][1] = -x[i][1].adjoint();
         F[i][2] = -x[i][2].adjoint();
     }
+
+    return F;
 }
 
 
-void updatePosition(CelestialBody &body, Eigen::Matrix<float, 3, 1> &acceleration){
-    body.position += body.velocity * (1.0f / fps) + 0.5 * acceleration * pow((1.0f / fps), 2);
-};
+float getPotentialHeight(float x, float z,const std::vector<double>& masses, 
+    const std::vector<Eigen::Matrix<float, 3, 1>>& positions) {
 
+    
+    float totalU = 0.0f;
 
-void updateVelocity(CelestialBody &body, Eigen::Matrix<float, 3, 1> &acceleration){
-    body.velocity = body.velocity + acceleration * (1.0f / fps);
-};
+    
+    float G_VISUAL = 10.0f;
 
-void updateBodies(std::vector<CelestialBody> &bodies) {
-    int length = bodies.size();
-    std::vector<Eigen::Matrix<float, 3, 1>> F;
-    std::vector<double> masses(length);
-    std::vector<float> radii(length);
-    std::vector<Eigen::Matrix<float, 3, 1>> positions(length);
-
-    for (int i = 0; i < length; i++) {
-        masses[i] = bodies[i].mass;
-        radii[i] = bodies[i].radius;
-        positions[i] = bodies[i].position;
+    
+    Eigen::Vector3f gridPoint(x,0.0f, z);
+    for (int i = 0; i < masses.size(); i++)
+    {
+        float dist = (gridPoint - positions[i]).norm();
+        totalU -= (G_VISUAL * masses[i]) / (dist + 0.5f);
     }
-
-    calculateForces(masses, radii, positions, F);
-
-    for (int i = 0; i < length; i++) {
-        Eigen::Matrix<float, 3, 1> acceleration = F[i] / masses[i];
-        updatePosition(bodies[i], acceleration);
-        updateVelocity(bodies[i], acceleration);
-    }
+    return totalU;
 }
