@@ -27,7 +27,7 @@ void calculatePotentialEnergy(
 }
 
 
-calculateForces(
+void calculateForces(
     std::vector<double> &masses, 
     std::vector<float> &radii,
     std::vector<Eigen::Matrix<float, 3, 1>> &positions,
@@ -101,6 +101,7 @@ void updateBodies(std::vector<CelestialBody> &bodies) {
         updateVelocity(bodies[i], acceleration);
     }
 }
+
 
 float getPotentialHeight(float x, float z,const std::vector<double>& masses, 
     const std::vector<Eigen::Matrix<float, 3, 1>>& positions) {
