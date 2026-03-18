@@ -112,7 +112,7 @@ float getPotentialHeight(float x, float z,const std::vector<double>& masses,
     float totalU = 0.0f;
 
     
-    float G_VISUAL = 10.0f;
+    float G_VISUAL = G;
 
     
     Eigen::Vector3f gridPoint(x,0.0f, z);

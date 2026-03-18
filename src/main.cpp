@@ -18,7 +18,7 @@ int main(void) {
     SetTargetFPS(60);
 
     CelestialBody earth = {
-        "earth", WHITE, 1000.0f, 0.25f,
+        "earth", WHITE, 10.0f, 0.25f,
         Eigen::Matrix<float, 3, 1>::Zero(),
         Eigen::Matrix<float, 3, 1>::Zero(),
         Eigen::Matrix<float, 3, 1>::Zero(),
@@ -27,7 +27,7 @@ int main(void) {
     CelestialBody earth2 = {
         "earth2", WHITE, 10.0f, 0.25f,
         Eigen::Matrix<float, 3, 1>(10, 0, 0),
-        Eigen::Matrix<float, 3, 1>(0, std::sqrt(G * 1000/10), 0),
+        Eigen::Matrix<float, 3, 1>(0, std::sqrt(G * 10/10), 0),
         Eigen::Matrix<float, 3, 1>::Zero(),
     };
 
@@ -42,15 +42,19 @@ int main(void) {
 
         UpdateCamera(&camera, CAMERA_FREE);
 
+        std::vector<double> masses = { earth.mass, earth2.mass };
+        std::vector<Eigen::Matrix<float, 3, 1>> positions(2);
         BeginMode3D(camera);
             // Test draw a sphere
-            for (CelestialBody body:bodies) {
-                Vector3 position = { body.position[0], body.position[1], body.position[2] };
-                DrawSphere(position, body.radius, WHITE);
+            for (int i = 0; i < 2; i++) {
+                Vector3 position = { bodies[i].position[0], bodies[i].position[1], bodies[i].position[2] };
+                positions[i] = bodies[i].position;
+
+                DrawSphere(position, bodies[i].radius, WHITE);
             }
 
             // Test draw a grid
-            DrawGrid(1000, 1.0f); 
+            DrawGravityGrid(masses, positions);
         EndMode3D();
 
         EndDrawing();
