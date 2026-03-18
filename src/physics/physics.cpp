@@ -12,7 +12,7 @@ void calculatePotentialEnergy(
     T &potentialEnergy
 ) 
 {
-    int length = masses.size();
+    int length = masses.size(); 
 
     for (int i = 0; i < length; i++) {
         for (int j = i + 1; j < length; j++) {
@@ -27,10 +27,10 @@ void calculatePotentialEnergy(
 }
 
 
-void calculateForces(
-    std::vector<double> masses, 
-    std::vector<float> radii,
-    std::vector<Eigen::Matrix<float, 3, 1>> positions,
+calculateForces(
+    std::vector<double> &masses, 
+    std::vector<float> &radii,
+    std::vector<Eigen::Matrix<float, 3, 1>> &positions,
     std::vector<Eigen::Matrix<float, 3, 1>> &F
 ) {
     using A = ad::adjoint_t<float>;
@@ -100,4 +100,23 @@ void updateBodies(std::vector<CelestialBody> &bodies) {
         updatePosition(bodies[i], acceleration);
         updateVelocity(bodies[i], acceleration);
     }
+}
+
+float getPotentialHeight(float x, float z,const std::vector<double>& masses, 
+    const std::vector<Eigen::Matrix<float, 3, 1>>& positions) {
+
+    
+    float totalU = 0.0f;
+
+    
+    float G_VISUAL = 10.0f;
+
+    
+    Eigen::Vector3f gridPoint(x,0.0f, z);
+    for (int i = 0; i < masses.size(); i++)
+    {
+        float dist = (gridPoint - positions[i]).norm();
+        totalU -= (G_VISUAL * masses[i]) / (dist + 0.5f);
+    }
+    return totalU;
 }
