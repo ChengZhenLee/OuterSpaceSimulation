@@ -2,6 +2,7 @@
 #include <Eigen/Dense>
 #include "constants.h"
 #include "physics.h"
+#include "../simulation.h"
 
 
 template<typename T>

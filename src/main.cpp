@@ -4,6 +4,7 @@
 
 // test
 #include "physics/physics.h"
+#include "simulation.h"
 
 
 int main(void) {
@@ -15,10 +16,11 @@ int main(void) {
     // Disable the cursor and "lock" it into the window
     DisableCursor();
 
-    SetTargetFPS(60);
+    SetTargetFPS(fps);
 
+    // Create test objects
     CelestialBody earth = {
-        "earth", WHITE, 10.0f, 0.25f,
+        "earth", WHITE, 100.0f, 0.25f,
         Eigen::Matrix<float, 3, 1>::Zero(),
         Eigen::Matrix<float, 3, 1>::Zero(),
         Eigen::Matrix<float, 3, 1>::Zero(),
@@ -27,35 +29,27 @@ int main(void) {
     CelestialBody earth2 = {
         "earth2", WHITE, 10.0f, 0.25f,
         Eigen::Matrix<float, 3, 1>(10, 0, 0),
-        Eigen::Matrix<float, 3, 1>(0, std::sqrt(G * 10/10), 0),
+        Eigen::Matrix<float, 3, 1>(0, std::sqrt(G * 100/10), 0),
         Eigen::Matrix<float, 3, 1>::Zero(),
     };
 
-    std::vector<CelestialBody> bodies = { earth, earth2 };
+    UIComponent ui = {};
+    Simulation sim = {
+        camera,
+        { earth, earth2 },
+        ui
+    };
 
     while (!WindowShouldClose()) {
-        updateBodies(bodies);
+        sim.update();
 
         BeginDrawing();
 
-        ClearBackground(BLACK);
+            ClearBackground(BLACK);
 
-        UpdateCamera(&camera, CAMERA_FREE);
+            UpdateCamera(&camera, CAMERA_FREE);
 
-        std::vector<double> masses = { earth.mass, earth2.mass };
-        std::vector<Eigen::Matrix<float, 3, 1>> positions(2);
-        BeginMode3D(camera);
-            // Test draw a sphere
-            for (int i = 0; i < 2; i++) {
-                Vector3 position = { bodies[i].position[0], bodies[i].position[1], bodies[i].position[2] };
-                positions[i] = bodies[i].position;
-
-                DrawSphere(position, bodies[i].radius, WHITE);
-            }
-
-            // Test draw a grid
-            DrawGravityGrid(masses, positions);
-        EndMode3D();
+            sim.draw();
 
         EndDrawing();
     }

@@ -1,11 +1,14 @@
+#include "visuals.h"
 #include "raylib.h"
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
 #include <Eigen/Dense>
 #include "../physics/physics.h"
 
 
 Camera3D getCamera() {
     Camera3D camera = { 0 };
-    camera.position = (Vector3){ 10.0f, 10.0f, 10.0f }; // Camera location
+    camera.position = (Vector3){ 20.0f, 20.0f, 20.0f }; // Camera location
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Looking at the center
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // "Up" is the Y axis
     camera.fovy = 45.0f;                                // Field of view
@@ -14,8 +17,18 @@ Camera3D getCamera() {
     return camera;
 }
 
-void DrawGravityGrid(const std::vector<double>& masses, const std::vector<Eigen::Matrix<float, 3, 1>>& positions) {
+
+void drawGravityGrid(std::vector<CelestialBody> &bodies) {
     
+    int length = bodies.size();
+    std::vector<double> masses(length);
+    std::vector<Eigen::Matrix<float, 3, 1>> positions(length);
+
+    for (int i = 0; i < length; i++) {
+        masses[i] = bodies[i].mass;
+        positions[i] = bodies[i].position;
+    }
+
     float distanceBetweenGridpoints = 1.0f; // Grid spacing
     int size = 20;
     int gridCount = (size * 2) + 1; // total points in the grid
@@ -53,5 +66,21 @@ void DrawGravityGrid(const std::vector<double>& masses, const std::vector<Eigen:
                 DrawLine3D(p1, {x, yFront, z + distanceBetweenGridpoints}, DARKGRAY);
             }
         }
+    }
+}
+
+
+void UIComponent::draw() {
+    if (showMenu) {
+        // Draw a background panel
+        GuiGroupBox(panelRect, "Menu");
+
+        // Create the menu components
+        GuiLabel((Rectangle){ 30, 50, 100 , 20}, "Mass");
+        if (GuiTextBox((Rectangle){ 30, 70, 160, 30 }, massText, 64, editMode)) {
+            editMode = !editMode;   // Toggle focus when clicked
+        }
+
+        float actualMass = std::stof(massText);
     }
 }

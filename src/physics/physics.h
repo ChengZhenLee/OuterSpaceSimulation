@@ -4,17 +4,26 @@
 #include <Eigen/Dense>
 #include "raylib.h"
 
-typedef struct CelestialBody {
-    std::string name;
-    Color color;
 
-    double mass;
-    float radius;
+using V = Eigen::Matrix<float, 3, 1>;
 
-    Eigen::Matrix<float, 3, 1> position;
-    Eigen::Matrix<float, 3, 1> velocity;
-    Eigen::Matrix<float, 3, 1> force;
-} CelestialBody;
+class CelestialBody {
+    public:
+        std::string title;
+        Color color;
+        double mass;
+        float radius;
+        V position;
+        V velocity;
+        V force;
+
+        void draw() {
+            Vector3 visualPosition = { position[0], position[1], position[2] };
+
+            DrawSphere(visualPosition, radius, WHITE);
+        }
+};
+
 
 void updateBodies(std::vector<CelestialBody> &bodies);
 
