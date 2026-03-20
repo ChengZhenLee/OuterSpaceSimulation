@@ -13,6 +13,8 @@ public:
     
     std::vector<CelestialBody> bodies;
 
+    bool isPaused = false;
+
     void addBody(CelestialBody body);
 
     void update();

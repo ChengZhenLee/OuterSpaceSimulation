@@ -8,7 +8,9 @@ void Simulation::addBody(CelestialBody body) {
 }
 
 void Simulation::update() {
-    updateBodies(bodies);
+    if (!isPaused) {
+        updateBodies(bodies);
+    }
 }
 
 void Simulation::draw() {

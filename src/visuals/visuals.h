@@ -13,18 +13,26 @@ public:
         targetSim(sim) 
     {};
 
-    bool showMenu = true;
-    bool editMassMode = false;
-    bool editPositionMode[3] = { false, false, false };
-    bool isPaused = false;
+    bool isEditing = false;
+
+    char nameText[64] = "newBody";
+    bool editNameMode = false;
 
     char massText[64] = "100.0";
+    bool editMassMode = false;
+
     char positionText[3][64] = { "0.0", "0.0", "0.0" };
+    bool editPositionMode[3] = { false, false, false };
+
+    char radius[64] = "0.25";
+    bool editRadiusMode = false;
 
     void draw();
 
+    bool isMouseOver();
+
 private:
-    Rectangle panelRect = { 20, 20, 200, 300 };
+    Rectangle panelRect = { 20, 20, 200, 400 };
     Simulation* targetSim; 
 };
 

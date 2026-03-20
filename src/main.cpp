@@ -9,30 +9,49 @@
 int main(void) {
     InitWindow(windowWidth, windowHeight, "Outer Space Simulation");
 
+    // Don't exit the program if 'exit' is pressed
+    SetExitKey(KEY_NULL);
+
     // Create the camera object
     Camera3D camera = getCamera();
-
-    // Disable the cursor and "lock" it into the window
-    // DisableCursor();
+    bool cameraEnabled = true;
+    DisableCursor();
 
     SetTargetFPS(fps);
 
-    // Create test objects
-    CelestialBody earth = CelestialBody("earth", WHITE, 100.0f, 0.25f, V::Zero());
+    // Create the simulation
+    Simulation sim = Simulation({});
 
-    CelestialBody earth2 = CelestialBody("earth", WHITE, 10.0f, 0.25f, V(10, 0, 0), {0, std::sqrt(G * 100/10), 0 });
-
-    Simulation sim = Simulation({ earth, earth2 });
+    // Create the UI component
     UIComponent ui = UIComponent(&sim);
 
     while (!WindowShouldClose()) {
+        // Toggle fullscreen
+        if (IsKeyDown(KEY_F))
+            ToggleFullscreen();
+
+        // Check if the camera is enabled
+        if (cameraEnabled) {
+            UpdateCamera(&camera, CAMERA_FREE);
+        }
+
+        // If clicked outside the UI component, enable the camera and disable the cursor
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !ui.isMouseOver()) {
+            cameraEnabled = true;
+            DisableCursor();
+        }
+
+        // Manually disable the camera and enable the cursor by pressing 'exit'
+        if (IsKeyPressed(KEY_ESCAPE)) {
+            cameraEnabled = false;
+            EnableCursor();
+        }
+
         sim.update();
 
         BeginDrawing();
 
             ClearBackground(BLACK);
-
-            UpdateCamera(&camera, CAMERA_FREE);
 
             BeginMode3D(camera);
                 sim.draw();
