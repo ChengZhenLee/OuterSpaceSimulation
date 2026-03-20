@@ -1,19 +1,24 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+
 #include <Eigen/Dense>
 #include "../physics/physics.h"
 #include "../simulation.h"
+#include "../types.h"
 
+Camera3D getCamera();
+
+void drawGravityGrid(std::vector<CelestialBody> &bodies);
 
 class UIComponent {
 public:
     // Constructor
-    UIComponent(Simulation* sim) : 
-        targetSim(sim) 
+    UIComponent(AppState* state) : 
+        state(state) 
     {};
 
-    bool isEditing = false;
+    Rectangle panelRect = { 20, 20, 200, 400 };
 
     char nameText[64] = "newBody";
     bool editNameMode = false;
@@ -24,20 +29,33 @@ public:
     char positionText[3][64] = { "0.0", "0.0", "0.0" };
     bool editPositionMode[3] = { false, false, false };
 
-    char radius[64] = "0.25";
+    char radiusText[64] = "0.25";
     bool editRadiusMode = false;
 
-    void draw();
+    void setNewBody();
 
     bool isMouseOver();
 
 private:
-    Rectangle panelRect = { 20, 20, 200, 400 };
-    Simulation* targetSim; 
+    AppState* state;
 };
 
-Camera3D getCamera();
+class Renderer {
+public:
+    Renderer(AppState* state) : 
+        state(state)
+    {};
 
-void drawGravityGrid(std::vector<CelestialBody> &bodies);
+    bool cameraEnabled = true;
+
+    void display(Simulation* sim, UIComponent* ui);
+
+    void drawBodyLabel(CelestialBody* body, Camera3D camera);
+
+    void drawUI(UIComponent* ui);
+
+private:
+    AppState* state;
+};
 
 #endif

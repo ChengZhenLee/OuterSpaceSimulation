@@ -7,15 +7,15 @@ void Simulation::addBody(CelestialBody body) {
     bodies.push_back(body);
 }
 
-void Simulation::update() {
-    if (!isPaused) {
-        updateBodies(bodies);
-    }
+void Simulation::deleteBody(CelestialBody* body) {
+    if (body == nullptr) return;
+
+    // Erase the body from the std::vector
+    std::erase_if(bodies, [body](const CelestialBody b) {
+        return &b == body;
+    });
 }
 
-void Simulation::draw() {
-    for (CelestialBody body:bodies) {
-        body.draw();
-    }
-    drawGravityGrid(bodies);
+void Simulation::update() {
+    updateBodies(bodies);
 }

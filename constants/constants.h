@@ -1,3 +1,8 @@
+#include <string>
+
+
+// std::string appName = "Outer Space Simulator";
+
 // Visual constants
 const int fps = 60;
 const int windowWidth = 1600;
