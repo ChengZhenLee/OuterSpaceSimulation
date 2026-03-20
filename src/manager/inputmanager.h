@@ -5,25 +5,22 @@
 #include "raylib.h"
 #include "../simulation.h"
 #include "../visuals/visuals.h"
+#include "../types.h"
 
 class InputManager {
 public:
-    InputManager(Simulation* sim, UIComponent* ui, Renderer* r) : 
-        targetSim(sim),
-        targetUI(ui),
-        targetRenderer(r)
+    InputManager(AppState* state) : 
+        state(state)
     {
         SetExitKey(KEY_NULL);
     };
 
-    void detectInput();
+    void detectInput(Simulation* sim, UIComponent* ui);
 
-    void processPicking();
+    void processPicking(Simulation* sim);
 
 private:
-    Simulation* targetSim;
-    UIComponent* targetUI;
-    Renderer* targetRenderer;
+    AppState* state;
 };
 
 #endif

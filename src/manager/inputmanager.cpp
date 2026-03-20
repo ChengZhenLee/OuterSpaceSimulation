@@ -1,63 +1,57 @@
 #include "raylib.h"
 #include "inputmanager.h"
+#include "../physics/physics.h"
+#include "../visuals/visuals.h"
 
 
-void InputManager::detectInput() {
+void InputManager::detectInput(Simulation* sim, UIComponent* ui) {
     // Toggle fullscreen
-    if (IsKeyDown(KEY_F))
-        ToggleFullscreen();
+    if (IsKeyDown(KEY_F)) ToggleFullscreen();
 
-    // Check if the camera is enabled
-    if (targetRenderer->cameraEnabled) {
-        UpdateCamera(&(targetRenderer->camera), CAMERA_FREE);
-    }
+    // Check if the camera is enabled (cursor is locked)
+    if (state->cursorLocked) UpdateCamera(&(state->camera), CAMERA_FREE);
 
     // If clicked outside the UI component, enable the camera and disable the cursor
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !(targetUI->isMouseOver())) {
-        targetRenderer->cameraEnabled = true;
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !(ui->isMouseOver())) {
+        state->cursorLocked = true;
         DisableCursor();
     }
 
     // Manually disable the camera and enable the cursor by pressing 'exit'
     if (IsKeyPressed(KEY_ESCAPE) && IsCursorHidden()) {
-        targetRenderer->cameraEnabled = false;
+        state->cursorLocked = false;
         EnableCursor();
     }
 
     // Toggle the simulation if Spacebar is pressed
-    if (IsKeyPressed(KEY_E)) {
-        targetSim->isPaused = !targetSim->isPaused;
-    }
+    if (IsKeyPressed(KEY_E)) state->isPaused = !(state->isPaused);
 
-    processPicking();
+    // Picking logic to pick bodies
+    processPicking(sim);
 }
 
 
-void InputManager::processPicking() {
-    // Don't allow picking if the cursor is not enabled
-    if (IsCursorHidden()) return;
+void InputManager::processPicking(Simulation* sim) {
+    // Reset the hover state every frame
+    state->hoveredBody = nullptr;
 
-    Ray ray = GetMouseRay(GetMousePosition(), targetRenderer->camera);
-    int hoveredIndex = -1;
+    // Don't allow picking if the cursor is locked (flying around with the camera)
+    if (state->cursorLocked) return;
 
-    for (int i = 0; i < targetSim->bodies.size(); i++) {
-        Vector3 pos = { targetSim->bodies[i].position[0],
-                        targetSim->bodies[i].position[1],
-                        targetSim->bodies[i].position[2]
-        };
+    Ray ray = GetMouseRay(GetMousePosition(), state->camera);
 
-        RayCollision hit = GetRayCollisionSphere(ray, pos, targetSim->bodies[i].radius);
+    for (auto body : sim->bodies) {
+        Vector3 pos = { body.position[0], body.position[1], body.position[2] };
+        RayCollision hit = GetRayCollisionSphere(ray, pos, body.radius);
 
         if (hit.hit) {
-            targetRenderer->drawBodyLabel(&targetSim->bodies[i]);
-            hoveredIndex = i;
+            state->hoveredBody = &body;
+
+            // Notify that this body is to be deleted if right mouse button is clicked while hovering
+            if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+                state->bodyToDelete = &body;
+            }
             break;
         }
-    }
-
-    // Delete the planet if right clicked on the planet
-    if (hoveredIndex != -1 && IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-        targetSim->bodies.erase(targetSim->bodies.begin() + hoveredIndex);
-        return;
     }
 }

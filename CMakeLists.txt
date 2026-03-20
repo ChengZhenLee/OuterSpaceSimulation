@@ -16,8 +16,8 @@ add_executable(OuterSpaceSimulation
     src/visuals/UIComponent.cpp
     src/visuals/Renderer.cpp
     src/physics/physics.cpp
-    src/physics/CelestialBody.cpp
     src/simulation.cpp
+    src/app.cpp
     src/main.cpp
 )
 

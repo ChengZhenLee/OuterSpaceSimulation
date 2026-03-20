@@ -5,8 +5,7 @@
 #include <Eigen/Dense>
 #include "../physics/physics.h"
 #include "../simulation.h"
-#include "../constants/constants.h"
-
+#include "../types.h"
 
 Camera3D getCamera();
 
@@ -15,11 +14,11 @@ void drawGravityGrid(std::vector<CelestialBody> &bodies);
 class UIComponent {
 public:
     // Constructor
-    UIComponent(Simulation* sim) : 
-        targetSim(sim) 
+    UIComponent(AppState* state) : 
+        state(state) 
     {};
 
-    bool isEditing = false;
+    Rectangle panelRect = { 20, 20, 200, 400 };
 
     char nameText[64] = "newBody";
     bool editNameMode = false;
@@ -33,39 +32,30 @@ public:
     char radiusText[64] = "0.25";
     bool editRadiusMode = false;
 
-    void draw();
+    void setNewBody();
 
     bool isMouseOver();
 
 private:
-    Rectangle panelRect = { 20, 20, 200, 400 };
-    Simulation* targetSim; 
+    AppState* state;
 };
 
 class Renderer {
 public:
-    Renderer(Simulation* sim, UIComponent* ui) : 
-        targetSim(sim),
-        targetUI(ui)
-    {
-        InitWindow(windowWidth, windowHeight, "Outer Space Simulator");
-        DisableCursor();
-        SetTargetFPS(fps);
-        setCamera();
-    };
+    Renderer(AppState* state) : 
+        state(state)
+    {};
 
     bool cameraEnabled = true;
-    Camera3D camera;
 
-    void display();
+    void display(Simulation* sim, UIComponent* ui);
 
-    void drawBodyLabel(CelestialBody* body);
+    void drawBodyLabel(CelestialBody* body, Camera3D camera);
+
+    void drawUI(UIComponent* ui);
 
 private:
-    void setCamera();
-
-    Simulation* targetSim;
-    UIComponent* targetUI;
+    AppState* state;
 };
 
 #endif

@@ -28,8 +28,6 @@ public:
     V position;
     V velocity;
     V force;
-
-    void draw();
 };
 
 
