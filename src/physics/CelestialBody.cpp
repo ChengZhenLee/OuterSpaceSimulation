@@ -3,7 +3,7 @@
 
 
 void CelestialBody::draw() {
-    Vector3 visualPosition = { position[0], position[1], position[2] };
+    Vector3 worldPosition = { position[0], position[1], position[2] };
 
-    DrawSphere(visualPosition, radius, WHITE);
+    DrawSphere(worldPosition, radius, WHITE);
 }

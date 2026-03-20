@@ -40,12 +40,14 @@ void UIComponent::draw() {
 
         // Radius
         GuiLabel({ 30, 220, 100, 20 }, "Radius");
-        if (GuiTextBox({ 140, 240, 50, 30 }, radius, 64, editRadiusMode))
+        if (GuiTextBox({ 140, 240, 50, 30 }, radiusText, 64, editRadiusMode))
             editRadiusMode = !editRadiusMode;
 
         // Button
         if (GuiButton({ 30, 280, 160, 30 }, "Spawn Planet")) {
             try {
+                std::string name = nameText;
+                float r = std::stof(radiusText);
                 double m = std::stof(massText);
                 float px = std::stof(positionText[0]);
                 float py = std::stof(positionText[1]);
@@ -53,7 +55,7 @@ void UIComponent::draw() {
                 
                 // Create and add a new body to the simulation
                 CelestialBody newBody = CelestialBody(
-                    "test", WHITE, m, 1.0, { px, py, pz }
+                    name, GetColor(GetRandomValue(0, 0xFFFFFFFF)), m, r, V( px, py, pz )
                 );
                 targetSim->addBody(newBody);
 
