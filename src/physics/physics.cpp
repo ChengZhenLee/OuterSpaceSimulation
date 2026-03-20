@@ -81,7 +81,49 @@ void updatePosition(CelestialBody &body, V &acceleration){
 void updateVelocity(CelestialBody &body, V &acceleration){
     body.velocity = body.velocity + acceleration * (1.0f / fps);
 };
+//-----------------COLLISION THING START---------------------
 
+void resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, float distance){
+    float overlap = (a.radius + b.radius) - distance;
+
+    //direction of collision
+    V collisionNormal = relativePos.normalized();
+
+    float totalMass = a.mass + b.mass;
+    float ratioA = b.mass /totalMass;
+    float ratioB = a.mass /totalMass;
+
+    //nudge apart
+    a.position -= collisionNormal * (overlap *ratioA);
+    b.position += collisionNormal * (overlap * ratioB);
+
+    a.velocity = -a.velocity * 0.5f;
+    b.velocity = -b.velocity * 0.5f;
+
+}
+void handleCollisions(std::vector<CelestialBody> &bodies){
+    for(int i = 0; i < bodies.size(); i++){
+        for(int j = i+1; j < bodies.size(); j++){
+            //vector that points from center of Planet A to center of planet B
+            V relativePos = bodies[j].position - bodies[i].position;
+
+            float distance = relativePos.norm();
+
+            float minDistance = bodies[i].radius + bodies[j].radius;
+
+            if(distance < minDistance){
+                //if theres a collision
+                resolveCollision(bodies[i], bodies[j], relativePos, distance);
+            }
+
+        }
+    }
+
+
+
+}
+
+//--------------------COLLISION THING END-----------------------------------------
 
 void updateBodies(std::vector<CelestialBody> &bodies) {
     int length = bodies.size();
@@ -103,6 +145,8 @@ void updateBodies(std::vector<CelestialBody> &bodies) {
         updatePosition(bodies[i], acceleration);
         updateVelocity(bodies[i], acceleration);
     }
+
+    handleCollisions(bodies);
 }
 
 
@@ -118,3 +162,4 @@ float getPotentialHeight(float x, float z, std::vector<double> &masses,  std::ve
     
     return totalU;
 }
+
