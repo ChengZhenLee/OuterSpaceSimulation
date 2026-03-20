@@ -40,7 +40,7 @@ void InputManager::processPicking(Simulation* sim) {
 
     Ray ray = GetMouseRay(GetMousePosition(), state->camera);
 
-    for (auto body : sim->bodies) {
+    for (auto& body : sim->bodies) {
         Vector3 pos = { body.position[0], body.position[1], body.position[2] };
         RayCollision hit = GetRayCollisionSphere(ray, pos, body.radius);
 
