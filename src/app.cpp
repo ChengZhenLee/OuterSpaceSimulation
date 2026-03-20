@@ -37,6 +37,10 @@ void App::run() {
             state.bodyToDelete = nullptr;
         }
 
+        if (state.hoveredBody != nullptr) {
+            r.drawBodyLabel(state.hoveredBody, state.camera);
+        }
+
         // Detect any inputs from users
         im.detectInput(&sim, &ui);
 
