@@ -1,8 +1,7 @@
 #include "raylib.h"
 #include "constants.h"
-#include "visuals/visuals.h"
 
-// test
+#include "visuals/visuals.h"
 #include "physics/physics.h"
 #include "simulation.h"
 
@@ -14,31 +13,17 @@ int main(void) {
     Camera3D camera = getCamera();
 
     // Disable the cursor and "lock" it into the window
-    DisableCursor();
+    // DisableCursor();
 
     SetTargetFPS(fps);
 
     // Create test objects
-    CelestialBody earth = {
-        "earth", WHITE, 100.0f, 0.25f,
-        Eigen::Matrix<float, 3, 1>::Zero(),
-        Eigen::Matrix<float, 3, 1>::Zero(),
-        Eigen::Matrix<float, 3, 1>::Zero(),
-    };
+    CelestialBody earth = CelestialBody("earth", WHITE, 100.0f, 0.25f, V::Zero());
 
-    CelestialBody earth2 = {
-        "earth2", WHITE, 10.0f, 0.25f,
-        Eigen::Matrix<float, 3, 1>(10, 0, 0),
-        Eigen::Matrix<float, 3, 1>(0, std::sqrt(G * 100/10), 0),
-        Eigen::Matrix<float, 3, 1>::Zero(),
-    };
+    CelestialBody earth2 = CelestialBody("earth", WHITE, 10.0f, 0.25f, V(10, 0, 0), {0, std::sqrt(G * 100/10), 0 });
 
-    UIComponent ui = {};
-    Simulation sim = {
-        camera,
-        { earth, earth2 },
-        ui
-    };
+    Simulation sim = Simulation({ earth, earth2 });
+    UIComponent ui = UIComponent(&sim);
 
     while (!WindowShouldClose()) {
         sim.update();
@@ -49,7 +34,11 @@ int main(void) {
 
             UpdateCamera(&camera, CAMERA_FREE);
 
-            sim.draw();
+            BeginMode3D(camera);
+                sim.draw();
+            EndMode3D();
+
+            ui.draw();
 
         EndDrawing();
     }

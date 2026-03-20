@@ -13,7 +13,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/constants)
 add_executable(OuterSpaceSimulation 
     src/main.cpp
     src/visuals/visuals.cpp
-    src/physics/physics.cpp)
+    src/visuals/UIComponent.cpp
+    src/physics/physics.cpp
+    src/physics/CelestialBody.cpp
+    src/simulation.cpp)
 
 # Link the library files
 if(WIN32)

@@ -31,8 +31,8 @@ void calculatePotentialEnergy(
 void calculateForces(
     std::vector<double> &masses, 
     std::vector<float> &radii,
-    std::vector<Eigen::Matrix<float, 3, 1>> &positions,
-    std::vector<Eigen::Matrix<float, 3, 1>> &F
+    std::vector<V> &positions,
+    std::vector<V> &F
 ) {
     using A = ad::adjoint_t<float>;
 
@@ -73,22 +73,22 @@ void calculateForces(
 }
 
 
-void updatePosition(CelestialBody &body, Eigen::Matrix<float, 3, 1> &acceleration){
+void updatePosition(CelestialBody &body, V &acceleration){
     body.position += body.velocity * (1.0f / fps) + 0.5 * acceleration * pow((1.0f / fps), 2);
 };
 
 
-void updateVelocity(CelestialBody &body, Eigen::Matrix<float, 3, 1> &acceleration){
+void updateVelocity(CelestialBody &body, V &acceleration){
     body.velocity = body.velocity + acceleration * (1.0f / fps);
 };
 
 
 void updateBodies(std::vector<CelestialBody> &bodies) {
     int length = bodies.size();
-    std::vector<Eigen::Matrix<float, 3, 1>> F(length);
+    std::vector<V> F(length);
     std::vector<double> masses(length);
     std::vector<float> radii(length);
-    std::vector<Eigen::Matrix<float, 3, 1>> positions(length);
+    std::vector<V> positions(length);
 
     for (int i = 0; i < length; i++) {
         masses[i] = bodies[i].mass;
@@ -99,28 +99,22 @@ void updateBodies(std::vector<CelestialBody> &bodies) {
     calculateForces(masses, radii, positions, F);
 
     for (int i = 0; i < length; i++) {
-        Eigen::Matrix<float, 3, 1> acceleration = F[i] / masses[i];
+        V acceleration = F[i] / masses[i];
         updatePosition(bodies[i], acceleration);
         updateVelocity(bodies[i], acceleration);
     }
 }
 
 
-float getPotentialHeight(float x, float z,const std::vector<double>& masses, 
-    const std::vector<Eigen::Matrix<float, 3, 1>>& positions) {
-
-    
+float getPotentialHeight(float x, float z, std::vector<double> &masses,  std::vector<V> &positions) {
     float totalU = 0.0f;
-
-    
-    float G_VISUAL = G;
-
     
     Eigen::Vector3f gridPoint(x,0.0f, z);
     for (int i = 0; i < masses.size(); i++)
     {
         float dist = (gridPoint - positions[i]).norm();
-        totalU -= (G_VISUAL * masses[i]) / (dist + 0.5f);
+        totalU -= (G * masses[i]) / (dist + 0.5f);
     }
+    
     return totalU;
 }

@@ -8,25 +8,33 @@
 using V = Eigen::Matrix<float, 3, 1>;
 
 class CelestialBody {
-    public:
-        std::string title;
-        Color color;
-        double mass;
-        float radius;
-        V position;
-        V velocity;
-        V force;
+public:
+    // Constructor
+    CelestialBody(std::string name, Color color, double mass, float radius, 
+        V position, V velocity={ 0.0f, 0.0f, 0.0f }, V force={ 0.0f, 0.0f, 0.0f }) :
+            name(name),
+            color(color),
+            mass(mass),
+            radius(radius),
+            position(position),
+            velocity(velocity),
+            force(force)
+    {};
 
-        void draw() {
-            Vector3 visualPosition = { position[0], position[1], position[2] };
+    std::string name;
+    Color color;
+    double mass;
+    float radius;
+    V position;
+    V velocity;
+    V force;
 
-            DrawSphere(visualPosition, radius, WHITE);
-        }
+    void draw();
 };
 
 
 void updateBodies(std::vector<CelestialBody> &bodies);
 
 
-float getPotentialHeight(float x, float z, const std::vector<double>& masses, const std::vector<Eigen::Matrix<float, 3, 1>>& positions);
+float getPotentialHeight(float x, float z, std::vector<double>& masses, std::vector<V>& positions);
 #endif

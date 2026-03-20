@@ -1,7 +1,5 @@
 #include "visuals.h"
 #include "raylib.h"
-#define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
 #include <Eigen/Dense>
 #include "../physics/physics.h"
 
@@ -22,7 +20,7 @@ void drawGravityGrid(std::vector<CelestialBody> &bodies) {
     
     int length = bodies.size();
     std::vector<double> masses(length);
-    std::vector<Eigen::Matrix<float, 3, 1>> positions(length);
+    std::vector<V> positions(length);
 
     for (int i = 0; i < length; i++) {
         masses[i] = bodies[i].mass;
@@ -66,21 +64,5 @@ void drawGravityGrid(std::vector<CelestialBody> &bodies) {
                 DrawLine3D(p1, {x, yFront, z + distanceBetweenGridpoints}, DARKGRAY);
             }
         }
-    }
-}
-
-
-void UIComponent::draw() {
-    if (showMenu) {
-        // Draw a background panel
-        GuiGroupBox(panelRect, "Menu");
-
-        // Create the menu components
-        GuiLabel((Rectangle){ 30, 50, 100 , 20}, "Mass");
-        if (GuiTextBox((Rectangle){ 30, 70, 160, 30 }, massText, 64, editMode)) {
-            editMode = !editMode;   // Toggle focus when clicked
-        }
-
-        float actualMass = std::stof(massText);
     }
 }
