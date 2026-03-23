@@ -7,6 +7,7 @@ void Simulation::addBody(CelestialBody body) {
     bodies.push_back(body);
 }
 
+
 bool Simulation::isOutOfBounds(CelestialBody body) {
     for (int i = 0; i < 3; i++) {
         if (std::abs(body.position[i]) > limit)
@@ -16,6 +17,7 @@ bool Simulation::isOutOfBounds(CelestialBody body) {
     return false;
 }
 
+
 void Simulation::deleteBody(CelestialBody* body) {
     if (body == nullptr) return;
 
@@ -24,6 +26,7 @@ void Simulation::deleteBody(CelestialBody* body) {
         return &b == body;
     });
 }
+
 
 void Simulation::update(float timeDelta) {
     // Remove out of bounds bodies

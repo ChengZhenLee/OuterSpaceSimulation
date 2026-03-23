@@ -106,10 +106,10 @@ void Renderer::drawUI(UIComponent* ui) {
         state->isPaused = !(state->isPaused);
 
     // Clear simulation
-    if(GuiButton({ 30, 420, 100, 20 }, "Clear Simulation"))
+    if(GuiButton({ 30, 420, 160, 30 }, "Clear Simulation"))
         state->clear = true;
 
     // Close the editor
-    if (GuiButton({ 30, 450, 160, 30 }, "Close Editor")) 
+    if (GuiButton({ 30, 460, 160, 30 }, "Close Editor")) 
         state->showMenu = false;
 }
