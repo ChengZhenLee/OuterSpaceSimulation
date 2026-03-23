@@ -18,7 +18,7 @@ public:
         state(state) 
     {};
 
-    Rectangle panelRect = { 20, 20, 200, 400 };
+    Rectangle panelRect = { 20, 20, 200, 450 };
 
     char nameText[64] = "newBody";
     bool editNameMode = false;
@@ -32,7 +32,12 @@ public:
     char radiusText[64] = "0.25";
     bool editRadiusMode = false;
 
+    char timeScaleText[64] = "1.0";
+    bool editTimeScaleMode = false;
+
     void setNewBody();
+
+    void setTimeScale();
 
     bool isMouseOver();
 

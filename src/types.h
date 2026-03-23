@@ -17,6 +17,7 @@ struct AppState {
     CelestialBody* bodyToDelete = nullptr;
     std::optional<CelestialBody> newBody;
 
+    float fps;
     float realTimeDelta;
     float simTimeDelta;
 };

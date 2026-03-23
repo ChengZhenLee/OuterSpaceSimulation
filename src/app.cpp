@@ -15,7 +15,7 @@ Camera3D App::getCamera() {
 
 void App::run() {
     while (!WindowShouldClose()) {
-
+        state.fps = GetFPS();
         state.realTimeDelta = GetFrameTime();
 
         // Detect if there are any pending spawns

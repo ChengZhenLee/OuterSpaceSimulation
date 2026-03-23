@@ -1,6 +1,7 @@
 #include "raylib.h"
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
+#include "../constants/constants.h"
 #include "visuals.h"
 #include "../physics/physics.h"
 #include "../types.h"
@@ -22,6 +23,15 @@ void Renderer::display(Simulation* sim, UIComponent* ui) {
             drawGravityGrid(sim->bodies);
 
         EndMode3D();
+
+        // Draw the frame rate and time scale
+        DrawText(TextFormat("%s fps", std::to_string((int)state->fps).c_str()), windowWidth - 200.0f, 0.0f, 20, WHITE);
+        DrawText(TextFormat("%sxSpeed", ui->timeScaleText), windowWidth - 200.0f, 30.0f, 20, WHITE);
+        if (state->isPaused) {
+            DrawText("Paused", windowWidth - 200.0f, 60.0f, 20, RED);
+        } else {
+            DrawText("Runnning", windowWidth - 200.0f, 60.0f, 20, GREEN);
+        }
 
         // Draw the ui
         drawUI(ui);
@@ -76,16 +86,26 @@ void Renderer::drawUI(UIComponent* ui) {
     if (GuiTextBox({ 140, 240, 50, 30 }, ui->radiusText, 64, ui->editRadiusMode))
         ui->editRadiusMode = !(ui->editRadiusMode);
 
-    // Spawn Planet
+    // Spawn Celestial Body
     if (GuiButton({ 30, 280, 160, 30 }, "Spawn Planet")) {
         ui->setNewBody();
     }
-    
+
+    // Edit the time scale
+    GuiLabel({ 30, 320, 100, 20 }, "Time Scale");
+    if (GuiTextBox({ 140, 340, 50, 30 }, ui->timeScaleText, 64, ui->editTimeScaleMode)) {
+        ui->editTimeScaleMode = !(ui->editTimeScaleMode);
+        
+        if (!(ui->editTimeScaleMode)) {
+            ui->setTimeScale();
+        }
+    }
+
     // Pause simulation
-    if (GuiButton({ 30, 320, 160, 30 }, "Toggle Simulation"))
+    if (GuiButton({ 30, 380, 160, 30 }, "Toggle Simulation"))
         state->isPaused = !(state->isPaused);
 
     // Close the editor
-    if (GuiButton({ 30, 360, 160, 30 }, "Close Editor")) 
+    if (GuiButton({ 30, 420, 160, 30 }, "Close Editor")) 
         state->showMenu = false;
 }
