@@ -10,11 +10,14 @@ void UIComponent::setNewBody() {
     V position = V(std::stod(positionText[0]), 
                 std::stod(positionText[1]), 
                 std::stod(positionText[2]));
+    V velocity = V(std::stod(velocityText[0]), 
+                std::stod(velocityText[1]), 
+                std::stod(velocityText[2]));
 
     // Make a random colour
     Color randomColor = ColorFromHSV(GetRandomValue(0, 360), 0.8f, 0.9f);
     CelestialBody newBody = CelestialBody(
-        name, randomColor, mass, radius, position
+        name, randomColor, mass, radius, position, velocity
     );
 
     state->newBody = newBody;

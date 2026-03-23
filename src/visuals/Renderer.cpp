@@ -89,19 +89,33 @@ void Renderer::display(Simulation* sim, UIComponent* ui) {
 
         EndMode3D();
 
-        // Draw the frame rate and time scale
-        DrawText(TextFormat("%s fps", std::to_string((int)state->fps).c_str()), windowWidth - 200.0f, 0.0f, 20, WHITE);
-        DrawText(TextFormat("%sxSpeed", ui->timeScaleText), windowWidth - 200.0f, 30.0f, 20, WHITE);
-        if (state->isPaused) {
-            DrawText("Paused", windowWidth - 200.0f, 60.0f, 20, RED);
-        } else {
-            DrawText("Running", windowWidth - 200.0f, 60.0f, 20, GREEN);
-        }
+        // Display the fps, speed and pause state
+        displaySpeed();
 
         // Draw the ui
         drawUI(ui);
 
     EndDrawing();
+}
+
+
+void Renderer::displaySpeed() {
+    // Draw the frame rate and time scale
+    DrawText(TextFormat("%s fps", std::to_string((int)state->fps).c_str()), windowWidth - 200.0f, 0.0f, 20, WHITE);
+
+    // Draw the simulation speed
+    float speedDisplay = 0.0f;
+    if (state->realTimeDelta > 0.0) {
+        speedDisplay = state->simTimeDelta / state->realTimeDelta;
+    }
+    DrawText(TextFormat("%.2fxSpeed", speedDisplay), windowWidth - 200.0f, 30.0f, 20, WHITE);
+
+    // Draw the pause state
+    if (state->isPaused) {
+        DrawText("Paused", windowWidth - 200.0f, 60.0f, 20, RED);
+    } else {
+        DrawText("Running", windowWidth - 200.0f, 60.0f, 20, GREEN);
+    }
 }
 
 
@@ -128,40 +142,53 @@ void Renderer::drawUI(UIComponent* ui) {
     GuiGroupBox(ui->panelRect, "Create Celestial Body");
 
     // Name
-    GuiLabel({ 30, 70, 100, 20 }, "Name");
-    if (GuiTextBox({ 30, 90, 160, 30 }, ui->nameText, 64, ui->editNameMode))
+    GuiLabel({ 30, 30, 100, 20 }, "Name");
+    if (GuiTextBox({ 30, 50, 160, 30 }, ui->nameText, 64, ui->editNameMode))
         ui->editNameMode = !(ui->editNameMode);
 
     // Mass
-    GuiLabel({ 30, 130, 100, 20 }, "Mass (in Earths)");
-    if (GuiTextBox({ 30, 150, 160, 30 }, ui->massText, 64, ui->editMassMode))
+    GuiLabel({ 30, 90, 100, 20 }, "Mass (in Earths)");
+    if (GuiTextBox({ 30, 110, 160, 30 }, ui->massText, 64, ui->editMassMode))
         ui->editMassMode = !(ui->editMassMode);
 
-   // Position
-    GuiLabel({ 30, 190, 100, 20 }, "Position (X, Y, Z)");
+    // Position
+    GuiLabel({ 30, 150, 100, 20 }, "Position (X, Y, Z)");
     // X
-    if (GuiTextBox({ 30, 210, 50, 30 }, ui->positionText[0], 64, ui->editPositionMode[0])) 
+    if (GuiTextBox({ 30, 180, 50, 30 }, ui->positionText[0], 64, ui->editPositionMode[0])) 
         ui->editPositionMode[0] = !(ui->editPositionMode[0]);
     // Y
-    if (GuiTextBox({ 85, 210, 50, 30 }, ui->positionText[1], 64, ui->editPositionMode[1])) 
+    if (GuiTextBox({ 85, 180, 50, 30 }, ui->positionText[1], 64, ui->editPositionMode[1])) 
         ui->editPositionMode[1] = !(ui->editPositionMode[1]);
     // Z
-    if (GuiTextBox({ 140, 210, 50, 30 }, ui->positionText[2], 64, ui->editPositionMode[2])) 
+    if (GuiTextBox({ 140,180, 50, 30 }, ui->positionText[2], 64, ui->editPositionMode[2])) 
         ui->editPositionMode[2] = !(ui->editPositionMode[2]);
 
+    // Velocity
+    GuiLabel({ 30, 220, 100, 20 }, "Velocity (X, Y, Z)");
+    // X
+    if (GuiTextBox({ 30, 240, 50, 30 }, ui->velocityText[0], 64, ui->editVelocityMode[0])) 
+        ui->editVelocityMode[0] = !(ui->editVelocityMode[0]);
+    // Y
+    if (GuiTextBox({ 85, 240, 50, 30 }, ui->velocityText[1], 64, ui->editVelocityMode[1])) 
+        ui->editVelocityMode[1] = !(ui->editVelocityMode[1]);
+    // Z
+    if (GuiTextBox({ 140, 240, 50, 30 }, ui->velocityText[2], 64, ui->editVelocityMode[2])) 
+        ui->editVelocityMode[2] = !(ui->editVelocityMode[2]);
+
+
     // Radius
-    GuiLabel({ 30, 250, 100, 20 }, "Radius (km)");
-    if (GuiTextBox({ 140, 270, 50, 30 }, ui->radiusText, 64, ui->editRadiusMode))
+    GuiLabel({ 30, 280, 100, 20 }, "Radius (km)");
+    if (GuiTextBox({ 140, 300, 50, 30 }, ui->radiusText, 64, ui->editRadiusMode))
         ui->editRadiusMode = !(ui->editRadiusMode);
 
     // Spawn Celestial Body
-    if (GuiButton({ 30, 310, 160, 30 }, "Spawn Planet")) {
+    if (GuiButton({ 30, 340, 160, 30 }, "Spawn Planet")) {
         ui->setNewBody();
     }
 
     // Edit the time scale
-    GuiLabel({ 30, 350, 100, 20 }, "Time Scale");
-    if (GuiTextBox({ 140, 370, 50, 30 }, ui->timeScaleText, 64, ui->editTimeScaleMode)) {
+    GuiLabel({ 30, 380, 100, 20 }, "Time Scale (year)");
+    if (GuiTextBox({ 140, 400, 50, 30 }, ui->timeScaleText, 64, ui->editTimeScaleMode)) {
         ui->editTimeScaleMode = !(ui->editTimeScaleMode);
         
         if (!(ui->editTimeScaleMode)) {
@@ -170,14 +197,14 @@ void Renderer::drawUI(UIComponent* ui) {
     }
 
     // Pause simulation
-    if (GuiButton({ 30, 410, 160, 30 }, "Toggle Simulation (E)"))
+    if (GuiButton({ 30, 440, 160, 30 }, "Toggle Simulation (E)"))
         state->isPaused = !(state->isPaused);
 
     // Clear simulation
-    if(GuiButton({ 30, 450, 160, 30 }, "Clear Simulation"))
+    if(GuiButton({ 30, 480, 160, 30 }, "Clear Simulation"))
         state->clear = true;
 
     // Close the editor
-    if (GuiButton({ 30, 490, 160, 30 }, "Close Editor")) 
+    if (GuiButton({ 30, 520, 160, 30 }, "Close Editor")) 
         state->showMenu = false;
 }

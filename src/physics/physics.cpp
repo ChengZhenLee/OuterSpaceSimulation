@@ -145,8 +145,8 @@ void updateBodies(std::vector<CelestialBody> &bodies, float timeDelta) {
 
     for (int i = 0; i < length; i++) {
         V acceleration = F[i] / masses[i];
-        updatePosition(bodies[i], acceleration, timeDelta);
-        updateVelocity(bodies[i], acceleration, timeDelta);
+        bodies[i].velocity += acceleration * timeDelta;   // Update speed based on current gravity
+        bodies[i].position += bodies[i].velocity * timeDelta; // Move using the NEW speed
     }
     handleCollisions(bodies);
 }

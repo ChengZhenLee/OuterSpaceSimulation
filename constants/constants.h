@@ -13,7 +13,7 @@ const int windowHeight = 900;
 const float limit = 200.0f;
 const int gridSize = 50;
 const double MIN_VISUAL_RADIUS = 0.1;
-const float HALO_OPACITY = 0.1f;
+const float HALO_OPACITY = 0.3f;
 
 // Physical constants (in AU, Solar Masses and Years)
 const double G = 39.47841760435743; 
