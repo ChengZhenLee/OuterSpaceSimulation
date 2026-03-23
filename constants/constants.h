@@ -1,17 +1,29 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
 #include <string>
 
 
-inline std::string appTitle = "Outer Space Simulator";
+inline const std::string appTitle = "Outer Space Simulator";
 
 // Visual constants
 const int fps = 60;
 const int windowWidth = 1600;
 const int windowHeight = 900; 
-const float limit = 1000.0f;
+const float limit = 200.0f;
 const int gridSize = 50;
+const double MIN_VISUAL_RADIUS = 0.1;
+const float HALO_OPACITY = 0.1f;
 
-// Physical constants
-const float G = 1.0f;
-const double sunMass = 100.0f;
-const double earthMass = 0.000003f;
-const float AU = 1.0f;
+// Physical constants (in AU, Solar Masses and Years)
+const double G = 39.47841760435743; 
+const double SUN_MASS = 1.0;
+const double EARTH_MASS = 0.00000300348959632;
+const double EARTH_RADIUS = 0.000042635;
+const double SUN_RADIUS = 0.00465047;
+
+// Conversion constants
+const double EARTH_TO_SOLAR_MASS = 0.000003003489;
+const double KM_TO_AU = 1.0 / 149597870.7;
+
+#endif

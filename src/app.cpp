@@ -3,7 +3,7 @@
 
 Camera3D App::getCamera() {
     Camera3D camera = { 0 };
-    camera.position = (Vector3){ 20.0f, 20.0f, 20.0f }; // Camera location
+    camera.position = (Vector3){ 10.0f, 10.0f, 10.0f }; // Camera location
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Looking at the center
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // "Up" is the Y axis
     camera.fovy = 45.0f;                                // Field of view

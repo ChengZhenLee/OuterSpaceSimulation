@@ -1,7 +1,7 @@
 #include "raylib.h"
+#include <algorithm>
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
-#include "constants.h"
 #include "visuals.h"
 #include "physics/physics.h"
 #include "types.h"
@@ -58,17 +58,31 @@ void Renderer::drawGravityGrid(std::vector<CelestialBody> &bodies) {
 }
 
 
+void Renderer::drawCelestialBody(CelestialBody& body) {
+    Vector3 pos = { (float)body.position[0], (float)body.position[1], (float)body.position[2] };
+
+    // Drawing the actual scaled size of the celestial body
+    double visualRadius = 0.05 + log10f(body.radius * 100000.0) * 0.1;
+    DrawSphere(pos, visualRadius, body.color);
+
+    // Drawing the halo of the celestial body
+    double haloRadius = std::max(MIN_VISUAL_RADIUS, visualRadius);
+    Color haloColor = ColorAlpha(body.color, HALO_OPACITY);
+    DrawSphere(pos, haloRadius, haloColor);
+    DrawSphereWires(pos, haloRadius, 8, 8, ColorAlpha(body.color, 0.5f));
+}
+
+
 void Renderer::display(Simulation* sim, UIComponent* ui) {
     BeginDrawing();
         ClearBackground(BLACK);
 
         BeginMode3D(state->camera);
 
-            // Draw each celestial body
+            // Draw each celestial body 
             for (auto body : sim->bodies) {
-                DrawSphere({ body.position[0], body.position[1], body.position[2] }, body.radius, body.color);
+                drawCelestialBody(body);
                 drawBodyLabel(&body, state->camera);
-
             }
             // Draw the grid
             drawGravityGrid(sim->bodies);
@@ -81,7 +95,7 @@ void Renderer::display(Simulation* sim, UIComponent* ui) {
         if (state->isPaused) {
             DrawText("Paused", windowWidth - 200.0f, 60.0f, 20, RED);
         } else {
-            DrawText("Runnning", windowWidth - 200.0f, 60.0f, 20, GREEN);
+            DrawText("Running", windowWidth - 200.0f, 60.0f, 20, GREEN);
         }
 
         // Draw the ui
@@ -91,8 +105,8 @@ void Renderer::display(Simulation* sim, UIComponent* ui) {
 }
 
 
-void Renderer::drawBodyLabel(CelestialBody* body, Camera3D camera) {
-    Vector3 worldPosition = { body->position[0], body->position[1], body->position[2] };
+void Renderer::drawBodyLabel(CelestialBody* body, Camera3D& camera) {
+    Vector3 worldPosition = { (float)body->position[0], (float)body->position[1], (float)body->position[2] };
 
     // Offset the y coordinate a little
     worldPosition.x -= body->radius;
@@ -113,38 +127,41 @@ void Renderer::drawUI(UIComponent* ui) {
 
     GuiGroupBox(ui->panelRect, "Create Celestial Body");
 
-    // We use the buffers from the UI object
-    if (GuiTextBox({ 30, 70, 160, 30 }, ui->nameText, 64, ui->editNameMode))
+    // Name
+    GuiLabel({ 30, 70, 100, 20 }, "Name");
+    if (GuiTextBox({ 30, 90, 160, 30 }, ui->nameText, 64, ui->editNameMode))
         ui->editNameMode = !(ui->editNameMode);
 
-    if (GuiTextBox({ 30, 120, 160, 30 }, ui->massText, 64, ui->editMassMode))
+    // Mass
+    GuiLabel({ 30, 130, 100, 20 }, "Mass (in Earths)");
+    if (GuiTextBox({ 30, 150, 160, 30 }, ui->massText, 64, ui->editMassMode))
         ui->editMassMode = !(ui->editMassMode);
 
    // Position
-    GuiLabel({ 30, 160, 100, 20 }, "Position (X, Y, Z)");
+    GuiLabel({ 30, 190, 100, 20 }, "Position (X, Y, Z)");
     // X
-    if (GuiTextBox({ 30, 180, 50, 30 }, ui->positionText[0], 64, ui->editPositionMode[0])) 
+    if (GuiTextBox({ 30, 210, 50, 30 }, ui->positionText[0], 64, ui->editPositionMode[0])) 
         ui->editPositionMode[0] = !(ui->editPositionMode[0]);
     // Y
-    if (GuiTextBox({ 85, 180, 50, 30 }, ui->positionText[1], 64, ui->editPositionMode[1])) 
+    if (GuiTextBox({ 85, 210, 50, 30 }, ui->positionText[1], 64, ui->editPositionMode[1])) 
         ui->editPositionMode[1] = !(ui->editPositionMode[1]);
     // Z
-    if (GuiTextBox({ 140, 180, 50, 30 }, ui->positionText[2], 64, ui->editPositionMode[2])) 
+    if (GuiTextBox({ 140, 210, 50, 30 }, ui->positionText[2], 64, ui->editPositionMode[2])) 
         ui->editPositionMode[2] = !(ui->editPositionMode[2]);
 
     // Radius
-    GuiLabel({ 30, 220, 100, 20 }, "Radius");
-    if (GuiTextBox({ 140, 240, 50, 30 }, ui->radiusText, 64, ui->editRadiusMode))
+    GuiLabel({ 30, 250, 100, 20 }, "Radius (km)");
+    if (GuiTextBox({ 140, 270, 50, 30 }, ui->radiusText, 64, ui->editRadiusMode))
         ui->editRadiusMode = !(ui->editRadiusMode);
 
     // Spawn Celestial Body
-    if (GuiButton({ 30, 280, 160, 30 }, "Spawn Planet")) {
+    if (GuiButton({ 30, 310, 160, 30 }, "Spawn Planet")) {
         ui->setNewBody();
     }
 
     // Edit the time scale
-    GuiLabel({ 30, 320, 100, 20 }, "Time Scale");
-    if (GuiTextBox({ 140, 340, 50, 30 }, ui->timeScaleText, 64, ui->editTimeScaleMode)) {
+    GuiLabel({ 30, 350, 100, 20 }, "Time Scale");
+    if (GuiTextBox({ 140, 370, 50, 30 }, ui->timeScaleText, 64, ui->editTimeScaleMode)) {
         ui->editTimeScaleMode = !(ui->editTimeScaleMode);
         
         if (!(ui->editTimeScaleMode)) {
@@ -153,14 +170,14 @@ void Renderer::drawUI(UIComponent* ui) {
     }
 
     // Pause simulation
-    if (GuiButton({ 30, 380, 160, 30 }, "Toggle Simulation (E)"))
+    if (GuiButton({ 30, 410, 160, 30 }, "Toggle Simulation (E)"))
         state->isPaused = !(state->isPaused);
 
     // Clear simulation
-    if(GuiButton({ 30, 420, 160, 30 }, "Clear Simulation"))
+    if(GuiButton({ 30, 450, 160, 30 }, "Clear Simulation"))
         state->clear = true;
 
     // Close the editor
-    if (GuiButton({ 30, 460, 160, 30 }, "Close Editor")) 
+    if (GuiButton({ 30, 490, 160, 30 }, "Close Editor")) 
         state->showMenu = false;
 }

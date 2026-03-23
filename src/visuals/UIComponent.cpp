@@ -6,10 +6,10 @@
 void UIComponent::setNewBody() {
     std::string name = nameText;
     double mass = std::stod(massText);
-    float radius = std::stof(radiusText);
-    V position = V(std::stof(positionText[0]), 
-                std::stof(positionText[1]), 
-                std::stof(positionText[2]));
+    float radius = std::stod(radiusText);
+    V position = V(std::stod(positionText[0]), 
+                std::stod(positionText[1]), 
+                std::stod(positionText[2]));
 
     // Make a random colour
     Color randomColor = ColorFromHSV(GetRandomValue(0, 360), 0.8f, 0.9f);

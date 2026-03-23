@@ -41,8 +41,9 @@ void InputManager::processPicking(Simulation* sim) {
     Ray ray = GetMouseRay(GetMousePosition(), state->camera);
 
     for (auto& body : sim->bodies) {
-        Vector3 pos = { body.position[0], body.position[1], body.position[2] };
-        RayCollision hit = GetRayCollisionSphere(ray, pos, body.radius);
+        Vector3 pos = { (float)body.position[0], (float)body.position[1], (float)body.position[2] };
+        double pickingRadius = std::max(MIN_VISUAL_RADIUS, (double)0.05f + log10f(body.radius * 100000.0) * 0.1); 
+        RayCollision hit = GetRayCollisionSphere(ray, pos, pickingRadius);
 
         if (hit.hit) {
             state->hoveredBody = &body;

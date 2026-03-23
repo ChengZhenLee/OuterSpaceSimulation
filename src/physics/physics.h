@@ -2,32 +2,36 @@
 #define PHYSICS_H
 
 #include <Eigen/Dense>
+#include "constants.h"
 #include "raylib.h"
 
 
-using V = Eigen::Matrix<float, 3, 1>;
+using V = Eigen::Matrix<double, 3, 1>;
 
 class CelestialBody {
 public:
     // Constructor
-    CelestialBody(std::string name, Color color, double mass, float radius, 
-        V position, V velocity={ 0.0f, 0.0f, 0.0f }, V force={ 0.0f, 0.0f, 0.0f }) :
+    CelestialBody(std::string name, Color color, double massInEarths, double radiusInKm, 
+        V position, V velocity={ 0.0, 0.0, 0.0 }, V force={ 0.0, 0.0, 0.0 }) :
             name(name),
             color(color),
-            mass(mass),
-            radius(radius),
+            mass(massInEarths * EARTH_TO_SOLAR_MASS),
+            radius(radiusInKm * KM_TO_AU),
             position(position),
             velocity(velocity),
             force(force)
     {};
 
-    std::string name;
-    Color color;
+    // Simulation variables
     double mass;
-    float radius;
+    double radius;
     V position;
     V velocity;
     V force;
+
+    // Visual variables
+    std::string name;
+    Color color;
 };
 
 

@@ -15,7 +15,7 @@ public:
         state(state) 
     {};
 
-    Rectangle panelRect = { 20, 20, 200, 500 };
+    Rectangle panelRect = { 20, 20, 200, 520 };
 
     char nameText[64] = "newBody";
     bool editNameMode = false;
@@ -50,11 +50,13 @@ public:
 
     bool cameraEnabled = true;
 
-    void drawGravityGrid(std::vector<CelestialBody> &bodies);
+    void drawGravityGrid(std::vector<CelestialBody>& bodies);
+
+    void drawCelestialBody(CelestialBody& body);
 
     void display(Simulation* sim, UIComponent* ui);
 
-    void drawBodyLabel(CelestialBody* body, Camera3D camera);
+    void drawBodyLabel(CelestialBody* body, Camera3D& camera);
 
     void drawUI(UIComponent* ui);
 

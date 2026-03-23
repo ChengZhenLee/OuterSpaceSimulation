@@ -1,13 +1,12 @@
 #include "ad.h"
 #include <Eigen/Dense>
-#include "constants.h"
 #include "physics.h"
 
 
 template<typename T>
 void calculatePotentialEnergy(
     std::vector<double> &masses, 
-    std::vector<float> &radii,
+    std::vector<double> &radii,
     std::vector<Eigen::Matrix<T, 3, 1>> &positions,
     T &potentialEnergy
 ) 
@@ -29,11 +28,11 @@ void calculatePotentialEnergy(
 
 void calculateForces(
     std::vector<double> &masses, 
-    std::vector<float> &radii,
+    std::vector<double> &radii,
     std::vector<V> &positions,
     std::vector<V> &F
 ) {
-    using A = ad::adjoint_t<float>;
+    using A = ad::adjoint_t<double>;
 
     int length = masses.size();
     std::vector<Eigen::Matrix<A, 3, 1>> x(length);
@@ -84,15 +83,15 @@ void updateVelocity(CelestialBody &body, V &acceleration, float timeDelta){
 
 //-----------------COLLISION THING START---------------------
 
-void resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, float distance){
-    float overlap = (a.radius + b.radius) - distance;
+void resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, double distance){
+    double overlap = (a.radius + b.radius) - distance;
 
     //direction of collision
     V collisionNormal = relativePos.normalized();
 
-    float totalMass = a.mass + b.mass;
-    float ratioA = b.mass /totalMass;
-    float ratioB = a.mass /totalMass;
+    double totalMass = a.mass + b.mass;
+    double ratioA = b.mass /totalMass;
+    double ratioB = a.mass /totalMass;
 
     //nudge apart
     a.position -= collisionNormal * (overlap *ratioA);
@@ -110,9 +109,9 @@ void handleCollisions(std::vector<CelestialBody> &bodies){
             //vector that points from center of Planet A to center of planet B
             V relativePos = bodies[j].position - bodies[i].position;
 
-            float distance = relativePos.norm();
+            double distance = relativePos.norm();
 
-            float minDistance = bodies[i].radius + bodies[j].radius;
+            double minDistance = bodies[i].radius + bodies[j].radius;
 
             if(distance < minDistance){
                 //if theres a collision
@@ -133,7 +132,7 @@ void updateBodies(std::vector<CelestialBody> &bodies, float timeDelta) {
     int length = bodies.size();
     std::vector<V> F(length);
     std::vector<double> masses(length);
-    std::vector<float> radii(length);
+    std::vector<double> radii(length);
     std::vector<V> positions(length);
 
     for (int i = 0; i < length; i++) {
@@ -156,7 +155,7 @@ void updateBodies(std::vector<CelestialBody> &bodies, float timeDelta) {
 float getPotentialHeight(float x, float z, std::vector<double> &masses,  std::vector<V> &positions) {
     float totalU = 0.0f;
     
-    Eigen::Vector3f gridPoint(x,0.0f, z);
+    Eigen::Vector3d gridPoint(x,0.0, z);
     for (int i = 0; i < masses.size(); i++)
     {
         float dist = (gridPoint - positions[i]).norm();
