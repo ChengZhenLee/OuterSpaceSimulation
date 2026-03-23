@@ -16,7 +16,7 @@ public:
         r(Renderer(&state)),
         im(InputManager(&state))
     { 
-        InitWindow(windowWidth, windowHeight, "Outer Space Simulator");
+        InitWindow(windowWidth, windowHeight, appTitle.c_str());
         SetTargetFPS(fps);
         DisableCursor();
         SetExitKey(KEY_NULL);
@@ -25,6 +25,8 @@ public:
         state.isPaused = false;
         state.cursorLocked = true;
         state.showMenu = false;
+        state.clear = false;
+
         state.realTimeDelta = 1.0f / fps;
         state.simTimeDelta = state.realTimeDelta;
     }

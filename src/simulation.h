@@ -15,9 +15,13 @@ public:
 
     void addBody(CelestialBody body);
 
+    bool isOutOfBounds(CelestialBody body);
+
     void deleteBody(CelestialBody* body);
 
     void update(float timeDelta);
+
+    void clear();
 };
 
 

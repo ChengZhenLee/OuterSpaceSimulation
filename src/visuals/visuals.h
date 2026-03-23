@@ -18,7 +18,7 @@ public:
         state(state) 
     {};
 
-    Rectangle panelRect = { 20, 20, 200, 450 };
+    Rectangle panelRect = { 20, 20, 200, 500 };
 
     char nameText[64] = "newBody";
     bool editNameMode = false;

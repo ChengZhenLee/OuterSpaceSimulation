@@ -12,6 +12,7 @@ struct AppState {
     bool isPaused;
     bool cursorLocked;
     bool showMenu;
+    bool clear;
 
     CelestialBody* hoveredBody = nullptr;
     CelestialBody* bodyToDelete = nullptr;

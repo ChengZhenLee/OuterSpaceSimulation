@@ -18,6 +18,19 @@ void App::run() {
         state.fps = GetFPS();
         state.realTimeDelta = GetFrameTime();
 
+        // Detect if the simulation has to be cleared
+        if (state.clear) {
+            sim.clear();
+
+            // Reset all the pointers
+            state.newBody = std::nullopt;
+            state.hoveredBody = nullptr;
+            state.bodyToDelete = nullptr;
+
+            // Reset the flag
+            state.clear = false;
+        }
+
         // Detect if there are any pending spawns
         if (state.newBody.has_value()) {
             // Add the new body into the simulation
