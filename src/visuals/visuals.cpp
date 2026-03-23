@@ -1,7 +1,7 @@
 #include "visuals.h"
 #include "raylib.h"
 #include <Eigen/Dense>
-#include "../physics/physics.h"
+#include "physics/physics.h"
 
 
 void drawGravityGrid(std::vector<CelestialBody> &bodies) {

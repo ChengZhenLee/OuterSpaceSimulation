@@ -1,10 +1,10 @@
 #include "raylib.h"
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
-#include "../constants/constants.h"
+#include "constants.h"
 #include "visuals.h"
-#include "../physics/physics.h"
-#include "../types.h"
+#include "physics/physics.h"
+#include "types.h"
 
 
 void Renderer::display(Simulation* sim, UIComponent* ui) {

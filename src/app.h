@@ -2,7 +2,7 @@
 #define APP_H
 
 #include "raylib.h"
-#include "../constants/constants.h"
+#include "constants.h"
 #include "visuals/visuals.h"
 #include "types.h"
 #include "manager/inputmanager.h"

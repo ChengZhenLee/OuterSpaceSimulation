@@ -3,9 +3,9 @@
 
 
 #include "raylib.h"
-#include "../simulation.h"
-#include "../visuals/visuals.h"
-#include "../types.h"
+#include "physics/simulation.h"
+#include "visuals/visuals.h"
+#include "types.h"
 
 class InputManager {
 public:

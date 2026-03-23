@@ -1,5 +1,5 @@
 #include "visuals.h"
-#include "../physics/physics.h"
+#include "physics/physics.h"
 #include <string>
 
 

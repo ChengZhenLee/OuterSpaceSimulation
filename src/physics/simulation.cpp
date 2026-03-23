@@ -1,6 +1,6 @@
-#include "../constants/constants.h"
+#include "constants.h"
 #include "simulation.h"
-#include "physics/physics.h"
+#include "physics.h"
 
 
 void Simulation::addBody(CelestialBody body) {

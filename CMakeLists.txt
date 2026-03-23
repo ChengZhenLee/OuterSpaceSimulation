@@ -5,10 +5,6 @@ project(OuterSpaceSimulation)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Include the headers
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/constants)
-
 # Include the source
 add_executable(OuterSpaceSimulation 
     src/manager/inputmanager.cpp
@@ -16,14 +12,22 @@ add_executable(OuterSpaceSimulation
     src/visuals/UIComponent.cpp
     src/visuals/Renderer.cpp
     src/physics/physics.cpp
-    src/simulation.cpp
+    src/physics/simulation.cpp
     src/app.cpp
     src/main.cpp
+)
+
+# Include the headers
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/constants
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 # Link the library files
 if(WIN32)
     target_link_libraries(OuterSpaceSimulation 
+        PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/lib/libraylib.a"
         opengl32
         gdi32
@@ -33,6 +37,7 @@ else(APPLE)
     find_library(RAYLIB_LIB raylib)
 
     target_link_libraries(OuterSpaceSimulation 
+        PRIVATE
         ${RAYLIB_LIB}
         "-framework IOKit"
         "-framework Cocoa"

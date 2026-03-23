@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include "inputmanager.h"
-#include "../physics/physics.h"
-#include "../visuals/visuals.h"
+#include "physics/physics.h"
+#include "visuals/visuals.h"
 
 
 void InputManager::detectInput(Simulation* sim, UIComponent* ui) {

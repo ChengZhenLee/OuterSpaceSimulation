@@ -2,7 +2,7 @@
 #define SIMULATION_H
 
 
-#include "physics/physics.h"
+#include "physics.h"
 
 
 class Simulation {

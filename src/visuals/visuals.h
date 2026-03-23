@@ -3,9 +3,9 @@
 
 
 #include <Eigen/Dense>
-#include "../physics/physics.h"
-#include "../simulation.h"
-#include "../types.h"
+#include "physics/physics.h"
+#include "physics/simulation.h"
+#include "types.h"
 
 Camera3D getCamera();
 
