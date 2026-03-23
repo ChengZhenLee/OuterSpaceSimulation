@@ -8,7 +8,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Include the source
 add_executable(OuterSpaceSimulation 
     src/manager/inputmanager.cpp
-    src/visuals/visuals.cpp
     src/visuals/UIComponent.cpp
     src/visuals/Renderer.cpp
     src/physics/physics.cpp

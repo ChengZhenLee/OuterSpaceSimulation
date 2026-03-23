@@ -7,9 +7,6 @@
 #include "physics/simulation.h"
 #include "types.h"
 
-Camera3D getCamera();
-
-void drawGravityGrid(std::vector<CelestialBody> &bodies);
 
 class UIComponent {
 public:
@@ -52,6 +49,8 @@ public:
     {};
 
     bool cameraEnabled = true;
+
+    void drawGravityGrid(std::vector<CelestialBody> &bodies);
 
     void display(Simulation* sim, UIComponent* ui);
 

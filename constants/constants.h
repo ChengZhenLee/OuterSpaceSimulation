@@ -8,6 +8,7 @@ const int fps = 60;
 const int windowWidth = 1600;
 const int windowHeight = 900; 
 const float limit = 1000.0f;
+const int gridSize = 50;
 
 // Physical constants
 const float G = 1.0f;
