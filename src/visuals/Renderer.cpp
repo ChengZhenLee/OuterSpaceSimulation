@@ -16,8 +16,8 @@ void Renderer::display(Simulation* sim, UIComponent* ui) {
             for (auto body : sim->bodies) {
                 DrawSphere({ body.position[0], body.position[1], body.position[2] }, body.radius, body.color);
                 drawBodyLabel(&body, state->camera);
-            }
 
+            }
             // Draw the grid
             drawGravityGrid(sim->bodies);
 

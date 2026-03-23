@@ -2,7 +2,6 @@
 #include <Eigen/Dense>
 #include "constants.h"
 #include "physics.h"
-#include "../simulation.h"
 
 
 template<typename T>
@@ -73,14 +72,16 @@ void calculateForces(
 }
 
 
-void updatePosition(CelestialBody &body, V &acceleration){
-    body.position += body.velocity * (1.0f / fps) + 0.5 * acceleration * pow((1.0f / fps), 2);
+void updatePosition(CelestialBody &body, V &acceleration, float timeDelta){
+    body.position += body.velocity * timeDelta + 0.5 * acceleration * pow(timeDelta, 2);
 };
 
 
-void updateVelocity(CelestialBody &body, V &acceleration){
-    body.velocity = body.velocity + acceleration * (1.0f / fps);
+void updateVelocity(CelestialBody &body, V &acceleration, float timeDelta){
+    body.velocity = body.velocity + acceleration * timeDelta;
 };
+
+
 //-----------------COLLISION THING START---------------------
 
 void resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, float distance){
@@ -101,6 +102,8 @@ void resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, float d
     b.velocity = -b.velocity * 0.5f;
 
 }
+
+
 void handleCollisions(std::vector<CelestialBody> &bodies){
     for(int i = 0; i < bodies.size(); i++){
         for(int j = i+1; j < bodies.size(); j++){
@@ -125,7 +128,8 @@ void handleCollisions(std::vector<CelestialBody> &bodies){
 
 //--------------------COLLISION THING END-----------------------------------------
 
-void updateBodies(std::vector<CelestialBody> &bodies) {
+
+void updateBodies(std::vector<CelestialBody> &bodies, float timeDelta) {
     int length = bodies.size();
     std::vector<V> F(length);
     std::vector<double> masses(length);
@@ -142,10 +146,9 @@ void updateBodies(std::vector<CelestialBody> &bodies) {
 
     for (int i = 0; i < length; i++) {
         V acceleration = F[i] / masses[i];
-        updatePosition(bodies[i], acceleration);
-        updateVelocity(bodies[i], acceleration);
+        updatePosition(bodies[i], acceleration, timeDelta);
+        updateVelocity(bodies[i], acceleration, timeDelta);
     }
-
     handleCollisions(bodies);
 }
 

@@ -17,7 +17,7 @@ public:
 
     void deleteBody(CelestialBody* body);
 
-    void update();
+    void update(float timeDelta);
 };
 
 

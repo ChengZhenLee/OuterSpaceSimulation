@@ -26,6 +26,11 @@ void InputManager::detectInput(Simulation* sim, UIComponent* ui) {
     // Toggle the simulation if Spacebar is pressed
     if (IsKeyPressed(KEY_E)) state->isPaused = !(state->isPaused);
 
+    // Change the time scale (TEST)
+    if (IsKeyPressed(KEY_ONE)) state->simTimeDelta = state->realTimeDelta;
+    if (IsKeyPressed(KEY_TWO)) state->simTimeDelta = state-> realTimeDelta * 2.0f;
+    if (IsKeyPressed(KEY_THREE)) state->simTimeDelta = state->realTimeDelta * 3.0f;
+
     // Picking logic to pick bodies
     processPicking(sim);
 }

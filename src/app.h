@@ -25,6 +25,8 @@ public:
         state.isPaused = false;
         state.cursorLocked = true;
         state.showMenu = false;
+        state.realTimeDelta = 1.0f / fps;
+        state.simTimeDelta = state.realTimeDelta;
     }
 
     void run();

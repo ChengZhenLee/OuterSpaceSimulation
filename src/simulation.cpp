@@ -15,6 +15,6 @@ void Simulation::deleteBody(CelestialBody* body) {
     });
 }
 
-void Simulation::update() {
-    updateBodies(bodies);
+void Simulation::update(float timeDelta) {
+    updateBodies(bodies, timeDelta);
 }

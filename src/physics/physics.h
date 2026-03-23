@@ -31,7 +31,7 @@ public:
 };
 
 
-void updateBodies(std::vector<CelestialBody> &bodies);
+void updateBodies(std::vector<CelestialBody> &bodies, float timeDelta);
 
 
 float getPotentialHeight(float x, float z, std::vector<double>& masses, std::vector<V>& positions);

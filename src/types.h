@@ -16,6 +16,9 @@ struct AppState {
     CelestialBody* hoveredBody = nullptr;
     CelestialBody* bodyToDelete = nullptr;
     std::optional<CelestialBody> newBody;
+
+    float realTimeDelta;
+    float simTimeDelta;
 };
 
 #endif

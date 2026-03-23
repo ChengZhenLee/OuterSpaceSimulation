@@ -16,6 +16,8 @@ Camera3D App::getCamera() {
 void App::run() {
     while (!WindowShouldClose()) {
 
+        state.realTimeDelta = GetFrameTime();
+
         // Detect if there are any pending spawns
         if (state.newBody.has_value()) {
             // Add the new body into the simulation
@@ -45,7 +47,7 @@ void App::run() {
         im.detectInput(&sim, &ui);
 
         // Update the simulation if not paused
-        if (!(state.isPaused)) sim.update();
+        if (!(state.isPaused)) sim.update(state.simTimeDelta);
 
         // Render
         r.display(&sim, &ui);
