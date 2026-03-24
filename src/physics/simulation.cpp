@@ -35,8 +35,10 @@ void Simulation::update(float timeDelta) {
             deleteBody(&body);
         }
     }
-
-    updateBodies(bodies, timeDelta);
+    float subStep = timeDelta / 100.0f;
+    for(int s = 0; s<100; s++){
+    updateBodies(bodies, subStep);
+    }
 }
 
 

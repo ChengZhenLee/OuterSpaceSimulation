@@ -4,6 +4,7 @@
 
 
 template<typename T>
+//anziehungskraft der planeten
 void calculatePotentialEnergy(
     std::vector<double> &masses, 
     std::vector<double> &radii,
@@ -12,20 +13,25 @@ void calculatePotentialEnergy(
 ) 
 {
     int length = masses.size(); 
-
+    T softening(1);
     for (int i = 0; i < length; i++) {
         for (int j = i + 1; j < length; j++) {
             T r = (positions[i] - positions[j]).norm();
-
-            if (r.value() > (radii[i] + radii[j])) {
+            //problem: if the planets get too near, the U grows really fast, which does tunnelling
+            //we make a minimum distance so U doesnt get to infinity
+            double minAllowedDist = radii[i] + radii[j];
+            T minDistT(minAllowedDist);
+            T effectiveR = (r < minDistT) ? minDistT : r;
+            //falls zwei planeten sich berühren keine gravity mehr
+            //if (r.value() > (radii[i] + radii[j])) {
                 T Gm1m2(G * masses[i] * masses[j]);
-                potentialEnergy = potentialEnergy - Gm1m2 / r;
-            }
+                potentialEnergy = potentialEnergy - Gm1m2 / (effectiveR + softening);
+            //}
         }
     }
 }
 
-
+//berechne F = -DeltaU
 void calculateForces(
     std::vector<double> &masses, 
     std::vector<double> &radii,
@@ -70,12 +76,12 @@ void calculateForces(
     A::tape::reset();
 }
 
-
+//neue position des planeten
 void updatePosition(CelestialBody &body, V &acceleration, float timeDelta){
     body.position += body.velocity * timeDelta + 0.5 * acceleration * pow(timeDelta, 2);
 };
 
-
+//neue geschwindigkeit
 void updateVelocity(CelestialBody &body, V &acceleration, float timeDelta){
     body.velocity = body.velocity + acceleration * timeDelta;
 };
@@ -94,12 +100,29 @@ void resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, double 
     double ratioB = a.mass /totalMass;
 
     //nudge apart
-    a.position -= collisionNormal * (overlap *ratioA);
-    b.position += collisionNormal * (overlap * ratioB);
+    double extraMargin = 1.01;
+    a.position -= collisionNormal * (overlap *ratioA)* extraMargin;
+    b.position += collisionNormal * (overlap * ratioB)* extraMargin;
 
-    a.velocity = -a.velocity * 0.5f;
-    b.velocity = -b.velocity * 0.5f;
+    // if both 100 kmh -> relative velocity is 0
+    double relativeVelocity = (a.velocity - b.velocity).dot(collisionNormal);
 
+    //speed towards center of other planet
+    double velocityAlongNormal = relativeVelocity;
+    
+    //if smaller zero both planets fly towards each other
+    if(velocityAlongNormal < 0){
+        float damping = 0.0f;
+        //kick apart (impulse resolver)
+        float j = -(1.0f + damping) * velocityAlongNormal;
+        j /= (1.0f / a.mass + 1.0f / b.mass);
+
+        V impulse = j* collisionNormal;
+        // add to velocity the strength of kick in direction of collision
+        a.velocity += impulse / a.mass;
+        b.velocity -= impulse / b.mass; 
+
+    }
 }
 
 
@@ -134,7 +157,6 @@ void updateBodies(std::vector<CelestialBody> &bodies, float timeDelta) {
     std::vector<double> masses(length);
     std::vector<double> radii(length);
     std::vector<V> positions(length);
-
     for (int i = 0; i < length; i++) {
         masses[i] = bodies[i].mass;
         radii[i] = bodies[i].radius;
@@ -147,8 +169,10 @@ void updateBodies(std::vector<CelestialBody> &bodies, float timeDelta) {
         V acceleration = F[i] / masses[i];
         bodies[i].velocity += acceleration * timeDelta;   // Update speed based on current gravity
         bodies[i].position += bodies[i].velocity * timeDelta; // Move using the NEW speed
+        
     }
     handleCollisions(bodies);
+    
 }
 
 
