@@ -7,14 +7,14 @@
 #include "types.h"
 
 
-void Renderer::drawGravityGrid(std::vector<CelestialBody> &bodies) {
+void Renderer::drawGravityGrid(std::vector<std::unique_ptr<CelestialBody>> &bodies) {
     int length = bodies.size();
     std::vector<double> masses(length);
     std::vector<V> positions(length);
 
     for (int i = 0; i < length; i++) {
-        masses[i] = bodies[i].mass;
-        positions[i] = bodies[i].position;
+        masses[i] = bodies[i]->mass;
+        positions[i] = bodies[i]->position;
     }
 
     float distanceBetweenGridpoints = 1.0f; // Grid spacing
@@ -78,9 +78,9 @@ void Renderer::display(Simulation* sim, UIComponent* ui) {
         BeginMode3D(state->camera);
 
             // Draw each celestial body 
-            for (auto body : sim->bodies) {
-                drawCelestialBody(body);
-                drawBodyLabel(&body, state->camera);
+            for (auto& body : sim->bodies) {
+                drawCelestialBody(*body);
+                drawBodyLabel(body.get(), state->camera);
             }
             // Draw the grid
             drawGravityGrid(sim->bodies);

@@ -35,8 +35,12 @@ public:
 };
 
 
-void updateBodies(std::vector<CelestialBody> &bodies, float timeDelta);
+void calculateForces();
 
+double resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, double distance);
+
+std::vector<std::unique_ptr<CelestialBody>> shatterBody(CelestialBody body, double excessVelocity);
 
 float getPotentialHeight(float x, float z, std::vector<double>& masses, std::vector<V>& positions);
+
 #endif

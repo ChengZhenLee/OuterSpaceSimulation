@@ -87,13 +87,12 @@ void updateVelocity(CelestialBody &body, V &acceleration, float timeDelta){
 };
 
 
-//-----------------COLLISION THING START---------------------
-
-void resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, double distance){
+// Calculate forces and velocities when colliding
+double resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, double distance){
     double overlap = (a.radius + b.radius) - distance;
 
     // Exit if not touching
-    if (overlap <= 0) return;
+    if (overlap <= 0) return 0.0;
 
     //direction of collision
     V collisionNormal = relativePos.normalized();
@@ -131,56 +130,52 @@ void resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, double 
         a.velocity -= tangentVelocity * friction * ratioA;
         b.velocity += tangentVelocity * friction * ratioB;
     }
+
+    return std::abs(velocityAlongNormal);
 }
 
 
-void handleCollisions(std::vector<CelestialBody> &bodies){
-    for(int i = 0; i < bodies.size(); i++){
-        for(int j = i+1; j < bodies.size(); j++){
-            //vector that points from center of Planet A to center of planet B
-            V relativePos = bodies[j].position - bodies[i].position;
-
-            double distance = relativePos.norm();
-
-            double minDistance = bodies[i].radius + bodies[j].radius;
-
-            if(distance < minDistance){
-                //if theres a collision
-                resolveCollision(bodies[i], bodies[j], relativePos, distance);
-            }
-
-        }
-    }
-}
-
-//--------------------COLLISION THING END-----------------------------------------
-
-
-void updateBodies(std::vector<CelestialBody> &bodies, float timeDelta) {
-    int length = bodies.size();
-    std::vector<V> F(length);
-    std::vector<double> masses(length);
-    std::vector<double> radii(length);
-    std::vector<V> positions(length);
-    for (int i = 0; i < length; i++) {
-        masses[i] = bodies[i].mass;
-        radii[i] = bodies[i].radius;
-        positions[i] = bodies[i].position;
-    }
-
-    calculateForces(masses, radii, positions, F);
-
-    for (int i = 0; i < length; i++) {
-        V acceleration = F[i] / masses[i];
-        bodies[i].velocity += acceleration * timeDelta;   // Update speed based on current gravity
-        bodies[i].position += bodies[i].velocity * timeDelta; // Move using the NEW speed
-        
-    }
-    handleCollisions(bodies);
+// Shatter a body into fragments
+std::vector<std::unique_ptr<CelestialBody>> shatterBody(CelestialBody body, double impactSpeed) {
+    std::vector<std::unique_ptr<CelestialBody>> fragments;
     
+    // Get a random number between 3 and 8
+    int fragmentCount = rand() % 6 + 3;
+    double fragMass = body.mass / fragmentCount / EARTH_TO_SOLAR_MASS;
+
+    // r = R / cuberoot(n)
+    double fragRadius = body.radius / std::pow(fragmentCount, 1.0/3.0) / KM_TO_10K_KM;
+
+    // The blast power
+    double blastPower = impactSpeed * 0.2f;
+
+    for (int i = 0; i < fragmentCount; i++) {
+        // 1. Generate a random unit vector for direction (numbers between -1 and 1)
+        V randomDir = V(
+            (rand() % 200 - 100) / 100.0,
+            (rand() % 200 - 100) / 100.0,
+            (rand() % 200 - 100) / 100.0
+        ).normalized();
+
+        // Spawn the fragments randomly within the original object's volume
+        float spawnDist = (rand() % 100 / 100.0f) * body.radius * 0.9;
+        V position = body.position + randomDir * spawnDist;
+
+        // Calculate the velocity of the object
+        V velocity = body.velocity + randomDir * blastPower;
+
+        CelestialBody fragment(
+            TextFormat("%s %i", body.name.c_str(), i), body.color, fragMass, fragRadius, position, velocity
+        );
+
+        fragments.push_back(std::make_unique<CelestialBody>(fragment));
+    }
+
+    return fragments;
 }
 
 
+// Get the height (of a point on the grid) affected by mass
 float getPotentialHeight(float x, float z, std::vector<double> &masses,  std::vector<V> &positions) {
     float totalU = 0.0f;
     

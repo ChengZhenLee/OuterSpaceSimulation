@@ -12,11 +12,14 @@ const int windowWidth = 1600;
 const int windowHeight = 900; 
 const float limit = 200.0f;
 const int gridSize = 50;
-const double MIN_VISUAL_RADIUS = 1;
+const double MIN_VISUAL_RADIUS = 0.1;
 const float HALO_OPACITY = 0.3f;
 
-// Physical constants (in 10000km, Solar Masses and Seconds)
+// Simulation constants
 const float friction = 0.9f;
+const int substepCount = 100;
+
+// Physical constants (in 10000km, Solar Masses and Seconds)
 const double G = 39.47841760435743; 
 
 // Conversion constants
