@@ -63,11 +63,6 @@ void Renderer::drawCelestialBody(CelestialBody& body) {
 
     // Drawing the celestial body
     DrawSphere(pos, body.radius, body.color);
-
-    // Drawing the halo of the celestial body
-    double haloRadius = std::max(MIN_VISUAL_RADIUS, body.radius);
-    Color haloColor = ColorAlpha(WHITE, HALO_OPACITY);
-    DrawSphere(pos, haloRadius, haloColor);
 }
 
 

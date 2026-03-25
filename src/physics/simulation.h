@@ -27,6 +27,10 @@ public:
     void clear();
 
 private:
+    void applyMerge(std::unique_ptr<CelestialBody> &a, std::unique_ptr<CelestialBody> &b);
+
+    void handleImpact(std::unique_ptr<CelestialBody> &a, std::unique_ptr<CelestialBody> &b, double impactSpeed);
+
     void handleCollisions(std::vector<std::unique_ptr<CelestialBody>> &bodies);
     
     void prepareBuffers(int n);    

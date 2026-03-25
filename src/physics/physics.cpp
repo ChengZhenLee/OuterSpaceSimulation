@@ -141,10 +141,13 @@ std::vector<std::unique_ptr<CelestialBody>> shatterBody(CelestialBody body, doub
     
     // Get a random number between 3 and 8
     int fragmentCount = rand() % 6 + 3;
-    double fragMass = body.mass / fragmentCount / EARTH_TO_SOLAR_MASS;
+    double fragMass = (body.mass / fragmentCount);
 
     // r = R / cuberoot(n)
-    double fragRadius = body.radius / std::pow(fragmentCount, 1.0/3.0) / KM_TO_10K_KM;
+    double fragRadius = (0.5 * body.radius / std::pow(fragmentCount, 1.0/3.0));
+
+    // Just vaporize the body if its too small
+    if (fragRadius < MIN_VISUAL_RADIUS) return {};
 
     // The blast power
     double blastPower = impactSpeed * 0.2f;
@@ -158,7 +161,7 @@ std::vector<std::unique_ptr<CelestialBody>> shatterBody(CelestialBody body, doub
         ).normalized();
 
         // Spawn the fragments randomly within the original object's volume
-        float spawnDist = (rand() % 100 / 100.0f) * body.radius * 0.9;
+        float spawnDist = body.radius * 1.2f;
         V position = body.position + randomDir * spawnDist;
 
         // Calculate the velocity of the object

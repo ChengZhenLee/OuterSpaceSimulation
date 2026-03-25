@@ -20,14 +20,14 @@ double safeStringToDouble(const std::string &str) {
 
 void UIComponent::setNewBody() {
     std::string name = nameText;
-    double mass = safeStringToDouble(massText);
-    float radius = safeStringToDouble(radiusText);
+    double mass = safeStringToDouble(massText) * EARTH_TO_SOLAR_MASS;
+    float radius = safeStringToDouble(radiusText) * KM_TO_10K_KM;
     V position = V(safeStringToDouble(positionText[0]), 
                 safeStringToDouble(positionText[1]), 
                 safeStringToDouble(positionText[2]));
     V velocity = V(safeStringToDouble(velocityText[0]), 
                 safeStringToDouble(velocityText[1]), 
-                safeStringToDouble(velocityText[2]));
+                safeStringToDouble(velocityText[2])) * MperS_TO_10K_KMperS;
 
     // Make a random colour
     Color randomColor = ColorFromHSV(GetRandomValue(0, 360), 0.8f, 0.9f);
