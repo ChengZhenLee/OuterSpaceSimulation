@@ -16,9 +16,8 @@ const double MIN_VISUAL_RADIUS = 1;
 const float HALO_OPACITY = 0.3f;
 
 // Physical constants (in 10000km, Solar Masses and Seconds)
+const float friction = 0.9f;
 const double G = 39.47841760435743; 
-const double SUN_MASS = 1.0;
-const double EARTH_MASS = 0.00000300348959632;
 
 // Conversion constants
 const double EARTH_TO_SOLAR_MASS = 0.000003003489;

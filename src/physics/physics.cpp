@@ -92,9 +92,13 @@ void updateVelocity(CelestialBody &body, V &acceleration, float timeDelta){
 void resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, double distance){
     double overlap = (a.radius + b.radius) - distance;
 
+    // Exit if not touching
+    if (overlap <= 0) return;
+
     //direction of collision
     V collisionNormal = relativePos.normalized();
 
+    // --Position Resolution--
     double totalMass = a.mass + b.mass;
     double ratioA = b.mass /totalMass;
     double ratioB = a.mass /totalMass;
@@ -104,24 +108,28 @@ void resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, double 
     a.position -= collisionNormal * (overlap *ratioA)* extraMargin;
     b.position += collisionNormal * (overlap * ratioB)* extraMargin;
 
-    // if both 100 kmh -> relative velocity is 0
-    double relativeVelocity = (a.velocity - b.velocity).dot(collisionNormal);
-
-    //speed towards center of other planet
-    double velocityAlongNormal = relativeVelocity;
+    // --Velocity Resolution--
+    V relativeVelocity = a.velocity - b.velocity;
+    double velocityAlongNormal = relativeVelocity.dot(collisionNormal);
     
     //if smaller zero both planets fly towards each other
     if(velocityAlongNormal < 0){
-        float damping = 0.0f;
+        float bounciness = 0.1f;
         //kick apart (impulse resolver)
-        float j = -(1.0f + damping) * velocityAlongNormal;
+        float j = -(1.0f + bounciness) * velocityAlongNormal;
         j /= (1.0f / a.mass + 1.0f / b.mass);
 
-        V impulse = j* collisionNormal;
+        V impulse = j * collisionNormal;
+
         // add to velocity the strength of kick in direction of collision
         a.velocity += impulse / a.mass;
         b.velocity -= impulse / b.mass; 
 
+        // Tangential friction
+        V tangentVelocity = relativeVelocity - (collisionNormal * velocityAlongNormal);
+        float friction = friction;
+        a.velocity -= tangentVelocity * friction * ratioA;
+        b.velocity += tangentVelocity * friction * ratioB;
     }
 }
 
@@ -143,9 +151,6 @@ void handleCollisions(std::vector<CelestialBody> &bodies){
 
         }
     }
-
-
-
 }
 
 //--------------------COLLISION THING END-----------------------------------------
