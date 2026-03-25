@@ -15,8 +15,8 @@ public:
         V position, V velocity={ 0.0, 0.0, 0.0 }, V force={ 0.0, 0.0, 0.0 }) :
             name(name),
             color(color),
-            mass(massInEarths * EARTH_TO_SOLAR_MASS),
-            radius(radiusInKm * KM_TO_AU),
+            mass(massInEarths),
+            radius(radiusInKm),
             position(position),
             velocity(velocity),
             force(force)
@@ -35,8 +35,12 @@ public:
 };
 
 
-void updateBodies(std::vector<CelestialBody> &bodies, float timeDelta);
+void calculateForces();
 
+double resolveCollision(CelestialBody &a, CelestialBody &b, V relativePos, double distance);
+
+std::vector<std::unique_ptr<CelestialBody>> shatterBody(CelestialBody body, double impactSpeed);
 
 float getPotentialHeight(float x, float z, std::vector<double>& masses, std::vector<V>& positions);
+
 #endif

@@ -53,7 +53,7 @@ public:
 
     bool cameraEnabled = true;
 
-    void drawGravityGrid(std::vector<CelestialBody>& bodies);
+    void drawGravityGrid(std::vector<std::unique_ptr<CelestialBody>>& bodies);
 
     void drawCelestialBody(CelestialBody& body);
 
