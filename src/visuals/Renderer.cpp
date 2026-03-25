@@ -61,15 +61,13 @@ void Renderer::drawGravityGrid(std::vector<CelestialBody> &bodies) {
 void Renderer::drawCelestialBody(CelestialBody& body) {
     Vector3 pos = { (float)body.position[0], (float)body.position[1], (float)body.position[2] };
 
-    // Drawing the actual scaled size of the celestial body
-    double visualRadius = 0.05 + log10f(body.radius * 100000.0) * 0.1;
-    DrawSphere(pos, visualRadius, body.color);
+    // Drawing the celestial body
+    DrawSphere(pos, body.radius, body.color);
 
     // Drawing the halo of the celestial body
-    double haloRadius = std::max(MIN_VISUAL_RADIUS, visualRadius);
-    Color haloColor = ColorAlpha(body.color, HALO_OPACITY);
+    double haloRadius = std::max(MIN_VISUAL_RADIUS, body.radius);
+    Color haloColor = ColorAlpha(WHITE, HALO_OPACITY);
     DrawSphere(pos, haloRadius, haloColor);
-    DrawSphereWires(pos, haloRadius, 8, 8, ColorAlpha(body.color, 0.5f));
 }
 
 
@@ -164,7 +162,7 @@ void Renderer::drawUI(UIComponent* ui) {
         ui->editPositionMode[2] = !(ui->editPositionMode[2]);
 
     // Velocity
-    GuiLabel({ 30, 220, 100, 20 }, "Velocity (X, Y, Z)");
+    GuiLabel({ 30, 220, 100, 20 }, "Velocity (m/s)");
     // X
     if (GuiTextBox({ 30, 240, 50, 30 }, ui->velocityText[0], 64, ui->editVelocityMode[0])) 
         ui->editVelocityMode[0] = !(ui->editVelocityMode[0]);
@@ -187,7 +185,7 @@ void Renderer::drawUI(UIComponent* ui) {
     }
 
     // Edit the time scale
-    GuiLabel({ 30, 380, 100, 20 }, "Time Scale (year)");
+    GuiLabel({ 30, 380, 100, 20 }, "Time Scale (seconds)");
     if (GuiTextBox({ 140, 400, 50, 30 }, ui->timeScaleText, 64, ui->editTimeScaleMode)) {
         ui->editTimeScaleMode = !(ui->editTimeScaleMode);
         

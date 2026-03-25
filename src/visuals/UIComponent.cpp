@@ -3,16 +3,31 @@
 #include <string>
 
 
+double safeStringToDouble(const std::string &str) {
+    // Check if the string is empty or contains only spaces
+    if (str.empty() || str.find_first_not_of(' ') == std::string::npos) {
+        return 0.0;
+    }
+
+    // Check if the string is a valid double
+    try {
+        return std::stod(str);
+    } catch (...) {
+        return 0.0;
+    }
+}
+
+
 void UIComponent::setNewBody() {
     std::string name = nameText;
-    double mass = std::stod(massText);
-    float radius = std::stod(radiusText);
-    V position = V(std::stod(positionText[0]), 
-                std::stod(positionText[1]), 
-                std::stod(positionText[2]));
-    V velocity = V(std::stod(velocityText[0]), 
-                std::stod(velocityText[1]), 
-                std::stod(velocityText[2]));
+    double mass = safeStringToDouble(massText);
+    float radius = safeStringToDouble(radiusText);
+    V position = V(safeStringToDouble(positionText[0]), 
+                safeStringToDouble(positionText[1]), 
+                safeStringToDouble(positionText[2]));
+    V velocity = V(safeStringToDouble(velocityText[0]), 
+                safeStringToDouble(velocityText[1]), 
+                safeStringToDouble(velocityText[2]));
 
     // Make a random colour
     Color randomColor = ColorFromHSV(GetRandomValue(0, 360), 0.8f, 0.9f);

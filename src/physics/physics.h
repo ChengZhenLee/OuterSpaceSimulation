@@ -16,9 +16,9 @@ public:
             name(name),
             color(color),
             mass(massInEarths * EARTH_TO_SOLAR_MASS),
-            radius(radiusInKm * KM_TO_AU),
+            radius(radiusInKm * KM_TO_10K_KM),
             position(position),
-            velocity(velocity),
+            velocity(velocity * MperS_TO_10K_KMperS),
             force(force)
     {};
 
