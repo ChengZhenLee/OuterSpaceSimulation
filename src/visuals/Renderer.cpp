@@ -3,7 +3,6 @@
 #include "raygui.h"
 #include "constants.h"
 #include "visuals.h"
-#include "physics/physics.h"
 #include "types.h"
 
 
@@ -58,7 +57,31 @@ void Renderer::drawGravityGrid(std::vector<std::unique_ptr<CelestialBody>> &bodi
 }
 
 
-void Renderer::drawTrail(CelestialBody& body) {
+void Renderer::drawParticleTrail(ExplosionParticle& particle) {
+    float length = particle.trail.size();
+
+    for (float i = 0; i < length-1; i++) {
+        float alpha = 1.0 - i / length;
+
+        Color trailColor = ColorAlpha(particle.color, alpha);
+
+        Vector3 startPoint = { (float)particle.trail[i][0], (float)particle.trail[i][1], (float)particle.trail[i][2] };
+        Vector3 endPoint = { (float)particle.trail[i+1][0], (float)particle.trail[i+1][1], (float)particle.trail[i+1][2] };
+
+        DrawLine3D(startPoint, endPoint, trailColor);
+    }
+}
+
+
+void Renderer::drawParticle(ExplosionParticle& particle) {
+    Vector3 pos = { (float)particle.position[0], (float)particle.position[1], (float)particle.position[2] };
+
+    // Draw the particle
+    DrawSphere(pos, particle.radius, particle.color);
+}
+
+
+void Renderer::drawBodyTrail(CelestialBody& body) {
     float length = body.trail.size();
 
     // Get the opposite of the planet's direction
@@ -106,9 +129,16 @@ void Renderer::display(Simulation* sim, UIComponent* ui) {
             // Draw each celestial body 
             for (auto& body : sim->bodies) {
                 drawCelestialBody(*body);
-                drawTrail(*body);
+                drawBodyTrail(*body);
                 drawBodyLabel(body.get(), state->camera);
             }
+
+            // Draw the explosion particles
+            for (auto& particle : sim->particles) {
+                drawParticle(*particle);
+                drawParticleTrail(*particle);
+            }
+
             // Draw the grid
             drawGravityGrid(sim->bodies);
 

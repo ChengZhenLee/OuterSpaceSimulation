@@ -3,7 +3,7 @@
 
 
 #include <Eigen/Dense>
-#include "physics/physics.h"
+#include "physics/explosionParticle.h"
 #include "physics/simulation.h"
 #include "types.h"
 
@@ -55,7 +55,11 @@ public:
 
     void drawGravityGrid(std::vector<std::unique_ptr<CelestialBody>>& bodies);
 
-    void drawTrail(CelestialBody& body);
+    void drawParticleTrail(ExplosionParticle& particle);
+
+    void drawParticle(ExplosionParticle& particle);
+
+    void drawBodyTrail(CelestialBody& body);
 
     void drawCelestialBody(CelestialBody& body);
 

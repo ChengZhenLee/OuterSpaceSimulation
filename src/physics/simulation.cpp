@@ -1,5 +1,6 @@
 #include "constants.h"
 #include "simulation.h"
+#include "explosionParticle.h"
 #include "physics.h"
 
 
@@ -34,6 +35,7 @@ void Simulation::clear() {
 
 
 void Simulation::handlePending() {
+    // Handle the pending bodies
     for (CelestialBody* body : bodiesToDelete) { 
         deleteBody(body);
     }
@@ -43,6 +45,17 @@ void Simulation::handlePending() {
         addBody(std::move(*body));
     }
     bodiesToAdd.clear();
+
+    // Handle the particles
+    for (ExplosionParticle* particle : particlesToDelete) {
+        deleteParticle(particle);
+    }
+    particlesToDelete.clear();
+
+    for (const auto& particle : particlesToAdd) {
+        addParticle(std::move(*particle));
+    }
+    particlesToAdd.clear();
 }
 
 
@@ -58,6 +71,54 @@ void Simulation::prepareBuffers(int n) {
         masses[i] = bodies[i]->mass;
         positions[i] = bodies[i]->position;
         radii[i] = bodies[i]->radius;
+    }
+}
+
+
+void Simulation::deleteParticle(ExplosionParticle* particle) {
+    if (particle == nullptr) return;
+
+    // Erase the particle from the std::vector
+    std::erase_if(particles, [particle](const std::unique_ptr<ExplosionParticle>& p) {
+        return p.get() == particle;
+    });
+}
+
+
+void Simulation::addParticle(ExplosionParticle particle) {
+    particles.push_back(std::make_unique<ExplosionParticle>(particle));
+}
+
+
+void Simulation::handleExplosion(float timeDelta) {
+    for (auto& particle : particles) {
+        if (particle->life <= 0.0) {
+            particlesToDelete.push_back(particle.get());
+            continue;
+        }
+
+        particle->position += particle->velocity * timeDelta;
+        particle->life -= timeDelta;
+        particle->color = ColorLerp(particle->color, WHITE, pow(particle->life, 2));
+    }
+}
+
+
+void Simulation::createExplosion(V position, double impactSpeed, Color color) {
+    for (int i = 0; i < EXPLOSION_COUNT; i++) {
+        ExplosionParticle newP;
+        newP.position = position;
+        V dir = {
+            (rand() % 100 - 50) / 100.0f,
+            (rand() % 100 - 50) / 100.0f,  
+            (rand() % 100 - 50) / 100.0f,  
+        };
+        newP.velocity = dir * impactSpeed;
+        newP.life = 1.0;
+        newP.color = color;
+        newP.radius = PARTICLE_RADIUS;
+
+        particlesToAdd.push_back(std::make_unique<ExplosionParticle>(newP));
     }
 }
 
@@ -97,6 +158,7 @@ void Simulation::handleImpact(std::unique_ptr<CelestialBody> &a, std::unique_ptr
         std::vector<std::unique_ptr<CelestialBody>> fragments;
         if (a->mass > b->mass) {
             fragments = shatterBody(*b, impactSpeed);
+            createExplosion(b->position, impactSpeed, b->color);
             bodiesToDelete.push_back(b.get());
 
             // Increase the mass of the larger a little depending
@@ -105,6 +167,7 @@ void Simulation::handleImpact(std::unique_ptr<CelestialBody> &a, std::unique_ptr
             else a->mass += b->mass * 0.5;
         } else {
             fragments = shatterBody(*a, impactSpeed);
+            createExplosion(a->position, impactSpeed, a->color);
             bodiesToDelete.push_back(a.get());
 
             if (fragments.empty()) b->mass += a->mass;
@@ -119,6 +182,10 @@ void Simulation::handleImpact(std::unique_ptr<CelestialBody> &a, std::unique_ptr
     else {
         auto fragsA = shatterBody(*a, impactSpeed);
         auto fragsB = shatterBody(*b, impactSpeed);
+
+        // Create explosion
+        createExplosion(a->position, impactSpeed, a->color);
+        createExplosion(b->position, impactSpeed, b->color);
 
         bodiesToDelete.push_back(a.get());
         bodiesToDelete.push_back(b.get());
@@ -187,5 +254,6 @@ void Simulation::update(float timeDelta) {
         }
     }
     handleCollisions(bodies);
+    handleExplosion(timeDelta); 
     handlePending();
 }
