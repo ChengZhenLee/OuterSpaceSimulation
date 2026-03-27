@@ -31,6 +31,7 @@ void Simulation::deleteBody(CelestialBody* body) {
 
 void Simulation::clear() {
     bodies.clear();
+    particles.clear();
 }
 
 
@@ -90,7 +91,7 @@ void Simulation::addParticle(ExplosionParticle particle) {
 }
 
 
-void Simulation::handleExplosion(float timeDelta) {
+void Simulation::updateExplosion(float timeDelta) {
     for (auto& particle : particles) {
         if (particle->life <= 0.0) {
             particlesToDelete.push_back(particle.get());
@@ -99,7 +100,9 @@ void Simulation::handleExplosion(float timeDelta) {
 
         particle->position += particle->velocity * timeDelta;
         particle->life -= timeDelta;
-        particle->color = ColorLerp(particle->color, WHITE, pow(particle->life, 2));
+        Color heated = ColorLerp(particle->baseColor, WHITE, pow(particle->life, 2));
+        particle->color = ColorAlpha(heated, particle->life);
+        particle->updateTrail();
     }
 }
 
@@ -113,9 +116,10 @@ void Simulation::createExplosion(V position, double impactSpeed, Color color) {
             (rand() % 100 - 50) / 100.0f,  
             (rand() % 100 - 50) / 100.0f,  
         };
-        newP.velocity = dir * impactSpeed;
+        newP.velocity = dir * (rand() % 100 / 50.0) * impactSpeed;
         newP.life = 1.0;
         newP.color = color;
+        newP.baseColor = color;
         newP.radius = PARTICLE_RADIUS;
 
         particlesToAdd.push_back(std::make_unique<ExplosionParticle>(newP));
@@ -214,6 +218,11 @@ void Simulation::handleCollisions(std::vector<std::unique_ptr<CelestialBody>> &b
                 // if theres a collision, update the velocities and forces so they do not overlap
                 double impactSpeed = resolveCollision(*bodies[i], *bodies[j], relativePos, distance);
 
+                // Create an explosion at the point of collision
+                V collisionNormal = relativePos / distance;
+                V collisionPoint = bodies[i]->position + collisionNormal * bodies[i]->radius;
+                createExplosion(collisionPoint, impactSpeed * 2.0, RED);
+
                 handleImpact(bodies[i], bodies[j], impactSpeed);
             }
         }
@@ -226,7 +235,7 @@ void Simulation::update(float timeDelta) {
     // Remove out of bounds bodies
     for (auto& body : bodies) {
         if (isOutOfBounds(body.get())) {
-            deleteBody(body.get());
+            bodiesToDelete.push_back(body.get());
         }
     }
 
@@ -254,6 +263,6 @@ void Simulation::update(float timeDelta) {
         }
     }
     handleCollisions(bodies);
-    handleExplosion(timeDelta); 
+    updateExplosion(timeDelta); 
     handlePending();
 }

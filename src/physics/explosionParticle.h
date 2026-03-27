@@ -12,6 +12,7 @@ public:
     V position;
     V velocity;
     Color color;
+    Color baseColor;
     float life;
     float radius;
 

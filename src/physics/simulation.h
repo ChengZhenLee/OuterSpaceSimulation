@@ -36,7 +36,7 @@ public:
 private:
     void createExplosion(V position, double impactSpeed, Color color);
 
-    void handleExplosion(float timeDelta);
+    void updateExplosion(float timeDelta);
 
     void deleteParticle(ExplosionParticle* particle);
 
