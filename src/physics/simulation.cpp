@@ -163,6 +163,11 @@ void Simulation::update(float timeDelta) {
         }
     }
 
+    // Update the trail
+    for (auto& body : bodies) {
+        body->updateTrail();
+    }
+
     float dt = timeDelta / substepCount;
 
     for (int s = 0; s < substepCount; s++){

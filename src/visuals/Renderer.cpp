@@ -1,7 +1,7 @@
 #include "raylib.h"
-#include <algorithm>
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
+#include "constants.h"
 #include "visuals.h"
 #include "physics/physics.h"
 #include "types.h"
@@ -58,6 +58,37 @@ void Renderer::drawGravityGrid(std::vector<std::unique_ptr<CelestialBody>> &bodi
 }
 
 
+void Renderer::drawTrail(CelestialBody& body) {
+    float length = body.trail.size();
+
+    // Get the opposite of the planet's direction
+    float speed = body.velocity.norm();
+    V oppDir;
+    if (speed != 0) oppDir = body.velocity / speed * -1;
+    
+    // Get the offset for each trail-point position
+    V offset = oppDir * body.radius * 0.9;
+
+    for (float i; i < length - 1; i++) {
+        // Colour fades
+        float alpha = 1.0 - i / length;
+
+        // Radius decreases in size
+        float radiusStart = body.radius * 0.4f * alpha;
+        float radiusEnd = body.radius * 0.4f * (1.0 - (i + 1) / length);
+
+        Color trailColor = ColorAlpha(body.color, alpha);
+
+        // Get the start and end points
+        V p1 = body.trail[i] + offset;
+        V p2 = body.trail[i+1] + offset;
+        Vector3 startPoint = { (float)p1[0], (float)p1[1], (float)p1[2] };
+        Vector3 endPoint = { (float)p2[0], (float)p2[1], (float)p2[2] };
+        DrawCylinderEx(startPoint, endPoint, radiusStart, radiusEnd, 6, trailColor);
+    }
+}
+
+
 void Renderer::drawCelestialBody(CelestialBody& body) {
     Vector3 pos = { (float)body.position[0], (float)body.position[1], (float)body.position[2] };
 
@@ -75,6 +106,7 @@ void Renderer::display(Simulation* sim, UIComponent* ui) {
             // Draw each celestial body 
             for (auto& body : sim->bodies) {
                 drawCelestialBody(*body);
+                drawTrail(*body);
                 drawBodyLabel(body.get(), state->camera);
             }
             // Draw the grid

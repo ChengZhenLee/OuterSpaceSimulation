@@ -2,7 +2,7 @@
 #define PHYSICS_H
 
 #include <Eigen/Dense>
-#include "constants.h"
+#include <deque>
 #include "raylib.h"
 
 
@@ -30,8 +30,16 @@ public:
     V force;
 
     // Visual variables
+    int maxTrailLength = 30;
+    std::deque<V> trail;
     std::string name;
     Color color;
+
+    // Update the trail
+    void updateTrail() {
+        trail.push_front(position);
+        if (trail.size() > maxTrailLength) trail.pop_back();
+    }
 };
 
 

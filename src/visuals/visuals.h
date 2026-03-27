@@ -55,6 +55,8 @@ public:
 
     void drawGravityGrid(std::vector<std::unique_ptr<CelestialBody>>& bodies);
 
+    void drawTrail(CelestialBody& body);
+
     void drawCelestialBody(CelestialBody& body);
 
     void display(Simulation* sim, UIComponent* ui);

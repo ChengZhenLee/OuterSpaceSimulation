@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "constants.h"
 #include "inputmanager.h"
 #include "physics/physics.h"
 #include "visuals/visuals.h"
