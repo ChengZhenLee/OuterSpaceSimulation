@@ -15,7 +15,7 @@ public:
         state(state) 
     {};
 
-    Rectangle panelRect = { 20, 20, 200, 550 };
+    Rectangle panelRect = { 20, 20, 200, 580 };
 
     char nameText[64] = "Earth";
     bool editNameMode = false;
@@ -45,6 +45,7 @@ private:
     AppState* state;
 };
 
+
 class Renderer {
 public:
     Renderer(AppState* state) : 
@@ -70,6 +71,8 @@ public:
     void drawBodyLabel(CelestialBody* body, Camera3D& camera);
 
     void drawUI(UIComponent* ui);
+
+    void drawHelp();
 
 private:
     AppState* state;

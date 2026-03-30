@@ -149,26 +149,29 @@ void Renderer::display(Simulation* sim, UIComponent* ui) {
         // Draw the ui
         drawUI(ui);
 
+        // Draw the help screen
+        if (state->showHelp) drawHelp();
+
     EndDrawing();
 }
 
 
 void Renderer::displaySpeed() {
     // Draw the frame rate and time scale
-    DrawText(TextFormat("%s fps", std::to_string((int)state->fps).c_str()), windowWidth - 200.0f, 0.0f, 20, WHITE);
+    DrawText(TextFormat("%s fps", std::to_string((int)state->fps).c_str()), windowWidth - 200.0f, 0.0f, 30, WHITE);
 
     // Draw the simulation speed
     float speedDisplay = 0.0f;
     if (state->realTimeDelta > 0.0) {
         speedDisplay = state->simTimeDelta / state->realTimeDelta;
     }
-    DrawText(TextFormat("%.2fxSpeed", speedDisplay), windowWidth - 200.0f, 30.0f, 20, WHITE);
+    DrawText(TextFormat("%.2fxSpeed", speedDisplay), windowWidth - 200.0f, 30.0f, 30, WHITE);
 
     // Draw the pause state
     if (state->isPaused) {
-        DrawText("Paused", windowWidth - 200.0f, 60.0f, 20, RED);
+        DrawText("Paused", windowWidth - 200.0f, 60.0f, 30, RED);
     } else {
-        DrawText("Running", windowWidth - 200.0f, 60.0f, 20, GREEN);
+        DrawText("Running", windowWidth - 200.0f, 60.0f, 30, GREEN);
     }
 }
 
@@ -182,7 +185,7 @@ void Renderer::drawBodyLabel(CelestialBody* body, Camera3D& camera) {
 
     Vector2 screenPosition = GetWorldToScreen(worldPosition, camera);
 
-    DrawText(body->name.c_str(), screenPosition.x, screenPosition.y, 20, BLUE);
+    DrawText(body->name.c_str(), screenPosition.x, screenPosition.y, 30, BLUE);
 }
 
 
@@ -251,14 +254,44 @@ void Renderer::drawUI(UIComponent* ui) {
     }
 
     // Pause simulation
-    if (GuiButton({ 30, 440, 160, 30 }, "Toggle Simulation (E)"))
+    if (GuiButton({ 30, 440, 160, 30 }, "Toggle Simulation"))
         state->isPaused = !(state->isPaused);
 
     // Clear simulation
-    if(GuiButton({ 30, 480, 160, 30 }, "Clear Simulation"))
+    if (GuiButton({ 30, 480, 160, 30 }, "Clear Simulation"))
         state->clear = true;
 
     // Close the editor
     if (GuiButton({ 30, 520, 160, 30 }, "Close Editor")) 
         state->showMenu = false;
+
+    if (GuiButton({ 60, 560, 100, 20 }, "Help")) {
+        state->showHelp = true;
+        state->isPaused = true;
+    }
+}
+
+
+void Renderer::drawHelp() {
+    float w = windowWidth * 0.5f;
+    float h = windowHeight * 0.5f;
+    float x = (windowWidth - w) / 2.0f;
+    float y = (windowHeight - h) / 2.0f;
+
+    std::string helpContent = 
+        "F: Toggle Fullscreen\n"
+        "E: Pause Simulation\n"
+        "C: Clear Simulation\n"
+        "ESC: Unlock Camera\n"
+        "Click: Enter Camera\n"
+        "Right Click: Delete Planet";
+
+    GuiGroupBox({x, y, w, h }, "Help");
+
+    DrawText(helpContent.c_str(), x+20.0f, y+40.0f, 30, WHITE);
+
+    if (GuiButton({ x+w-170, y+h-50, 160, 40 }, "Close")) {
+        state->showHelp = false;
+        state->isPaused = false;
+    }
 }
