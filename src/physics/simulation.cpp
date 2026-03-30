@@ -15,6 +15,17 @@ bool Simulation::isOutOfBounds(CelestialBody* body) {
 
 
 void Simulation::addBody(CelestialBody body) {
+    // Check if the body is large enough to see
+    if (body.radius < MIN_VISUAL_RADIUS) return;
+
+    // Check if the mass is valid
+    if (body.mass <= 0.0) return;
+
+    // Check if the position is overlapping with other planets
+    for (auto& b : bodies) {
+        if (body.position == b->position) return;
+    }
+
     bodies.push_back(std::make_unique<CelestialBody>(body));
 }
 

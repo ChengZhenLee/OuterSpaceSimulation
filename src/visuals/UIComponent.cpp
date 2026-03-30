@@ -38,6 +38,7 @@ void UIComponent::setNewBody() {
     state->newBody = newBody;
 }
 
+
 void UIComponent::setTimeScale() {
     float timeScale = std::stof(timeScaleText);
     state->simTimeDelta = state->realTimeDelta * timeScale;
@@ -45,6 +46,7 @@ void UIComponent::setTimeScale() {
     // Reset the flag
     editTimeScaleMode = false;
 }
+
 
 bool UIComponent::isMouseOver() {
     return CheckCollisionPointRec(GetMousePosition(), panelRect);
