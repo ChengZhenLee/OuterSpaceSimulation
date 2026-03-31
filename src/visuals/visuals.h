@@ -3,7 +3,7 @@
 
 
 #include <Eigen/Dense>
-#include "physics/physics.h"
+#include "physics/explosionParticle.h"
 #include "physics/simulation.h"
 #include "types.h"
 
@@ -15,7 +15,7 @@ public:
         state(state) 
     {};
 
-    Rectangle panelRect = { 20, 20, 200, 550 };
+    Rectangle panelRect = { 20, 20, 200, 580 };
 
     char nameText[64] = "Earth";
     bool editNameMode = false;
@@ -45,6 +45,7 @@ private:
     AppState* state;
 };
 
+
 class Renderer {
 public:
     Renderer(AppState* state) : 
@@ -55,6 +56,12 @@ public:
 
     void drawGravityGrid(std::vector<std::unique_ptr<CelestialBody>>& bodies);
 
+    void drawParticleTrail(ExplosionParticle& particle);
+
+    void drawParticle(ExplosionParticle& particle);
+
+    void drawBodyTrail(CelestialBody& body);
+
     void drawCelestialBody(CelestialBody& body);
 
     void display(Simulation* sim, UIComponent* ui);
@@ -64,6 +71,8 @@ public:
     void drawBodyLabel(CelestialBody* body, Camera3D& camera);
 
     void drawUI(UIComponent* ui);
+
+    void drawHelp();
 
 private:
     AppState* state;

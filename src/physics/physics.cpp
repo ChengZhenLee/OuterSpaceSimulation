@@ -1,5 +1,6 @@
 #include "ad.h"
 #include <Eigen/Dense>
+#include "constants.h"
 #include "physics.h"
 
 
@@ -23,11 +24,9 @@ void calculatePotentialEnergy(
             double minAllowedDist = radii[i] + radii[j];
             T minDistT(minAllowedDist);
             T effectiveR = (r < minDistT) ? minDistT : r;
-            //falls zwei planeten sich berühren keine gravity mehr
-            //if (r.value() > (radii[i] + radii[j])) {
-                T Gm1m2(G * masses[i] * masses[j]);
-                potentialEnergy = potentialEnergy - Gm1m2 / (effectiveR + softening);
-            //}
+
+            T Gm1m2(G * masses[i] * masses[j]);
+            potentialEnergy = potentialEnergy - Gm1m2 / (effectiveR + softening);
         }
     }
 }
@@ -145,7 +144,7 @@ std::vector<std::unique_ptr<CelestialBody>> shatterBody(CelestialBody body, doub
     double fragMass = (body.mass / fragmentCount);
 
     // r = R / cuberoot(n)
-    double fragRadius = (0.5 * body.radius / std::pow(fragmentCount, 1.0/3.0));
+    double fragRadius = (0.6 * body.radius / std::pow(fragmentCount, 1.0/3.0));
 
     // Just vaporize the body if its too small
     if (fragRadius < MIN_VISUAL_RADIUS) return {};
@@ -189,7 +188,7 @@ float getPotentialHeight(float x, float z, std::vector<double> &masses,  std::ve
         float dist = (gridPoint - positions[i]).norm();
         totalU -= (G * masses[i]) / (dist + 0.5f);
     }
-    
+        
     return totalU;
 }
 

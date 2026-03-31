@@ -2,9 +2,13 @@
 #define CONSTANTS_H
 
 #include <string>
+#include <Eigen/Dense>
 
 
 inline const std::string appTitle = "Outer Space Simulator";
+
+// Typename
+using V = Eigen::Matrix<double, 3, 1>;
 
 // Visual constants
 const int fps = 60;
@@ -14,6 +18,11 @@ const float limit = 200.0f;
 const int gridSize = 50;
 const double MIN_VISUAL_RADIUS = 0.1;
 const float HALO_OPACITY = 0.3f;
+const int MAXTRAILLENGTH = 50;
+
+// Explosion effect
+const float PARTICLE_RADIUS = 0.01f;
+const int EXPLOSION_COUNT = 50;
 
 // Simulation constants
 const float friction = 0.9f;

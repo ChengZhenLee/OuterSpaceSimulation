@@ -1,5 +1,6 @@
 #include "constants.h"
 #include "simulation.h"
+#include "explosionParticle.h"
 #include "physics.h"
 
 
@@ -14,6 +15,17 @@ bool Simulation::isOutOfBounds(CelestialBody* body) {
 
 
 void Simulation::addBody(CelestialBody body) {
+    // Check if the body is large enough to see
+    if (body.radius < MIN_VISUAL_RADIUS) return;
+
+    // Check if the mass is valid
+    if (body.mass <= 0.0) return;
+
+    // Check if the position is overlapping with other planets
+    for (auto& b : bodies) {
+        if (body.position == b->position) return;
+    }
+
     bodies.push_back(std::make_unique<CelestialBody>(body));
 }
 
@@ -30,10 +42,12 @@ void Simulation::deleteBody(CelestialBody* body) {
 
 void Simulation::clear() {
     bodies.clear();
+    particles.clear();
 }
 
 
 void Simulation::handlePending() {
+    // Handle the pending bodies
     for (CelestialBody* body : bodiesToDelete) { 
         deleteBody(body);
     }
@@ -43,6 +57,17 @@ void Simulation::handlePending() {
         addBody(std::move(*body));
     }
     bodiesToAdd.clear();
+
+    // Handle the particles
+    for (ExplosionParticle* particle : particlesToDelete) {
+        deleteParticle(particle);
+    }
+    particlesToDelete.clear();
+
+    for (const auto& particle : particlesToAdd) {
+        addParticle(std::move(*particle));
+    }
+    particlesToAdd.clear();
 }
 
 
@@ -58,6 +83,57 @@ void Simulation::prepareBuffers(int n) {
         masses[i] = bodies[i]->mass;
         positions[i] = bodies[i]->position;
         radii[i] = bodies[i]->radius;
+    }
+}
+
+
+void Simulation::deleteParticle(ExplosionParticle* particle) {
+    if (particle == nullptr) return;
+
+    // Erase the particle from the std::vector
+    std::erase_if(particles, [particle](const std::unique_ptr<ExplosionParticle>& p) {
+        return p.get() == particle;
+    });
+}
+
+
+void Simulation::addParticle(ExplosionParticle particle) {
+    particles.push_back(std::make_unique<ExplosionParticle>(particle));
+}
+
+
+void Simulation::updateExplosion(float timeDelta) {
+    for (auto& particle : particles) {
+        if (particle->life <= 0.0) {
+            particlesToDelete.push_back(particle.get());
+            continue;
+        }
+
+        particle->position += particle->velocity * timeDelta;
+        particle->life -= timeDelta;
+        Color heated = ColorLerp(particle->baseColor, WHITE, pow(particle->life, 2));
+        particle->color = ColorAlpha(heated, particle->life);
+        particle->updateTrail();
+    }
+}
+
+
+void Simulation::createExplosion(V position, double impactSpeed, Color color) {
+    for (int i = 0; i < EXPLOSION_COUNT; i++) {
+        ExplosionParticle newP;
+        newP.position = position;
+        V dir = {
+            (rand() % 100 - 50) / 100.0f,
+            (rand() % 100 - 50) / 100.0f,  
+            (rand() % 100 - 50) / 100.0f,  
+        };
+        newP.velocity = dir * (rand() % 100 / 50.0) * impactSpeed;
+        newP.life = 1.0;
+        newP.color = color;
+        newP.baseColor = color;
+        newP.radius = PARTICLE_RADIUS;
+
+        particlesToAdd.push_back(std::make_unique<ExplosionParticle>(newP));
     }
 }
 
@@ -97,6 +173,7 @@ void Simulation::handleImpact(std::unique_ptr<CelestialBody> &a, std::unique_ptr
         std::vector<std::unique_ptr<CelestialBody>> fragments;
         if (a->mass > b->mass) {
             fragments = shatterBody(*b, impactSpeed);
+            createExplosion(b->position, impactSpeed, b->color);
             bodiesToDelete.push_back(b.get());
 
             // Increase the mass of the larger a little depending
@@ -105,6 +182,7 @@ void Simulation::handleImpact(std::unique_ptr<CelestialBody> &a, std::unique_ptr
             else a->mass += b->mass * 0.5;
         } else {
             fragments = shatterBody(*a, impactSpeed);
+            createExplosion(a->position, impactSpeed, a->color);
             bodiesToDelete.push_back(a.get());
 
             if (fragments.empty()) b->mass += a->mass;
@@ -119,6 +197,10 @@ void Simulation::handleImpact(std::unique_ptr<CelestialBody> &a, std::unique_ptr
     else {
         auto fragsA = shatterBody(*a, impactSpeed);
         auto fragsB = shatterBody(*b, impactSpeed);
+
+        // Create explosion
+        createExplosion(a->position, impactSpeed, a->color);
+        createExplosion(b->position, impactSpeed, b->color);
 
         bodiesToDelete.push_back(a.get());
         bodiesToDelete.push_back(b.get());
@@ -147,6 +229,11 @@ void Simulation::handleCollisions(std::vector<std::unique_ptr<CelestialBody>> &b
                 // if theres a collision, update the velocities and forces so they do not overlap
                 double impactSpeed = resolveCollision(*bodies[i], *bodies[j], relativePos, distance);
 
+                // Create an explosion at the point of collision
+                V collisionNormal = relativePos / distance;
+                V collisionPoint = bodies[i]->position + collisionNormal * bodies[i]->radius;
+                createExplosion(collisionPoint, impactSpeed * 2.0, RED);
+
                 handleImpact(bodies[i], bodies[j], impactSpeed);
             }
         }
@@ -159,8 +246,13 @@ void Simulation::update(float timeDelta) {
     // Remove out of bounds bodies
     for (auto& body : bodies) {
         if (isOutOfBounds(body.get())) {
-            deleteBody(body.get());
+            bodiesToDelete.push_back(body.get());
         }
+    }
+
+    // Update the trail
+    for (auto& body : bodies) {
+        body->updateTrail();
     }
 
     float dt = timeDelta / substepCount;
@@ -182,5 +274,6 @@ void Simulation::update(float timeDelta) {
         }
     }
     handleCollisions(bodies);
+    updateExplosion(timeDelta); 
     handlePending();
 }

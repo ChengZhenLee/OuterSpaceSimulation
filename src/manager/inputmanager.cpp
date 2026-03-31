@@ -1,18 +1,18 @@
 #include "raylib.h"
+#include "constants.h"
 #include "inputmanager.h"
-#include "physics/physics.h"
 #include "visuals/visuals.h"
 
 
 void InputManager::detectInput(Simulation* sim, UIComponent* ui) {
     // Toggle fullscreen
-    if (IsKeyDown(KEY_F)) ToggleFullscreen();
+    if (IsKeyDown(KEY_F) && !(ui->isMouseOver())) ToggleFullscreen();
 
-    // Check if the camera is enabled (cursor is locked)
+    // Check if the camera is enabled (cursor is locked) and not reading the Help menu
     if (state->cursorLocked) UpdateCamera(&(state->camera), CAMERA_FREE);
 
     // If clicked outside the UI component, enable the camera and disable the cursor
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !(ui->isMouseOver())) {
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && !(ui->isMouseOver()) && !(state->showHelp)) {
         state->cursorLocked = true;
         DisableCursor();
     }
@@ -23,8 +23,11 @@ void InputManager::detectInput(Simulation* sim, UIComponent* ui) {
         EnableCursor();
     }
 
-    // Toggle the simulation if Spacebar is pressed
-    if (IsKeyPressed(KEY_E)) state->isPaused = !(state->isPaused);
+    // Toggle the simulation if E is pressed
+    if (IsKeyPressed(KEY_E) && !(ui->isMouseOver())) state->isPaused = !(state->isPaused);
+
+    // Clear the simulation if C is pressed
+    if (IsKeyPressed(KEY_C) && !(ui->isMouseOver())) state->clear = true;
 
     // Picking logic to pick bodies
     processPicking(sim);

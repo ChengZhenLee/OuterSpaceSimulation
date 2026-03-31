@@ -2,8 +2,8 @@
 #include <algorithm>
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
+#include "constants.h"
 #include "visuals.h"
-#include "physics/physics.h"
 #include "types.h"
 
 
@@ -58,6 +58,59 @@ void Renderer::drawGravityGrid(std::vector<std::unique_ptr<CelestialBody>> &bodi
 }
 
 
+void Renderer::drawParticleTrail(ExplosionParticle& particle) {
+    float length = particle.trail.size();
+
+    for (float i = 0; i < length-1; i++) {
+        Vector3 startPoint = { (float)particle.trail[i][0], (float)particle.trail[i][1], (float)particle.trail[i][2] };
+        Vector3 endPoint = { (float)particle.trail[i+1][0], (float)particle.trail[i+1][1], (float)particle.trail[i+1][2] };
+
+        DrawLine3D(startPoint, endPoint, particle.color);
+    }
+}
+
+
+void Renderer::drawParticle(ExplosionParticle& particle) {
+    Vector3 pos = { (float)particle.position[0], (float)particle.position[1], (float)particle.position[2] };
+
+    // Draw the particle
+    DrawSphere(pos, particle.radius, particle.color);
+}
+
+
+void Renderer::drawBodyTrail(CelestialBody& body) {
+    float length = body.trail.size();
+
+    // Get the opposite of the planet's direction
+    float speed = body.velocity.norm();
+    V oppDir;
+    if (speed != 0) oppDir = body.velocity / speed * -1;
+    
+    // Get the offset for each trail-point position
+    V offset = oppDir * body.radius * 0.9;
+
+    for (float i; i < length - 1; i++) {
+        // Colour fades
+        float alpha = 1.0 - i / std::max(length, 1.0f);
+
+        // Radius decreases in size
+        float radiusStart = body.radius * 0.4f * alpha;
+        float radiusEnd = body.radius * 0.4f * (1.0 - (i + 1) / std::max(length, 1.0f));
+
+        Color trailColor = ColorAlpha(body.color, alpha);
+
+        // Get the start and end points
+        V p1 = body.trail[i] + offset;
+        V p2 = body.trail[i+1] + offset;
+
+        Vector3 startPoint = { (float)p1[0], (float)p1[1], (float)p1[2] };
+        Vector3 endPoint = { (float)p2[0], (float)p2[1], (float)p2[2] };
+
+        DrawCylinderEx(startPoint, endPoint, radiusStart, radiusEnd, 6, trailColor);
+    }
+}
+
+
 void Renderer::drawCelestialBody(CelestialBody& body) {
     Vector3 pos = { (float)body.position[0], (float)body.position[1], (float)body.position[2] };
 
@@ -75,8 +128,16 @@ void Renderer::display(Simulation* sim, UIComponent* ui) {
             // Draw each celestial body 
             for (auto& body : sim->bodies) {
                 drawCelestialBody(*body);
+                drawBodyTrail(*body);
                 drawBodyLabel(body.get(), state->camera);
             }
+
+            // Draw the explosion particles
+            for (auto& particle : sim->particles) {
+                drawParticle(*particle);
+                drawParticleTrail(*particle);
+            }
+
             // Draw the grid
             drawGravityGrid(sim->bodies);
 
@@ -88,26 +149,29 @@ void Renderer::display(Simulation* sim, UIComponent* ui) {
         // Draw the ui
         drawUI(ui);
 
+        // Draw the help screen
+        if (state->showHelp) drawHelp();
+
     EndDrawing();
 }
 
 
 void Renderer::displaySpeed() {
     // Draw the frame rate and time scale
-    DrawText(TextFormat("%s fps", std::to_string((int)state->fps).c_str()), windowWidth - 200.0f, 0.0f, 20, WHITE);
+    DrawText(TextFormat("%s fps", std::to_string((int)state->fps).c_str()), windowWidth - 200.0f, 0.0f, 30, WHITE);
 
     // Draw the simulation speed
     float speedDisplay = 0.0f;
     if (state->realTimeDelta > 0.0) {
         speedDisplay = state->simTimeDelta / state->realTimeDelta;
     }
-    DrawText(TextFormat("%.2fxSpeed", speedDisplay), windowWidth - 200.0f, 30.0f, 20, WHITE);
+    DrawText(TextFormat("%.2fxSpeed", speedDisplay), windowWidth - 200.0f, 30.0f, 30, WHITE);
 
     // Draw the pause state
     if (state->isPaused) {
-        DrawText("Paused", windowWidth - 200.0f, 60.0f, 20, RED);
+        DrawText("Paused", windowWidth - 200.0f, 60.0f, 30, RED);
     } else {
-        DrawText("Running", windowWidth - 200.0f, 60.0f, 20, GREEN);
+        DrawText("Running", windowWidth - 200.0f, 60.0f, 30, GREEN);
     }
 }
 
@@ -121,7 +185,7 @@ void Renderer::drawBodyLabel(CelestialBody* body, Camera3D& camera) {
 
     Vector2 screenPosition = GetWorldToScreen(worldPosition, camera);
 
-    DrawText(body->name.c_str(), screenPosition.x, screenPosition.y, 20, BLUE);
+    DrawText(body->name.c_str(), screenPosition.x, screenPosition.y, 30, BLUE);
 }
 
 
@@ -190,14 +254,44 @@ void Renderer::drawUI(UIComponent* ui) {
     }
 
     // Pause simulation
-    if (GuiButton({ 30, 440, 160, 30 }, "Toggle Simulation (E)"))
+    if (GuiButton({ 30, 440, 160, 30 }, "Toggle Simulation"))
         state->isPaused = !(state->isPaused);
 
     // Clear simulation
-    if(GuiButton({ 30, 480, 160, 30 }, "Clear Simulation"))
+    if (GuiButton({ 30, 480, 160, 30 }, "Clear Simulation"))
         state->clear = true;
 
     // Close the editor
     if (GuiButton({ 30, 520, 160, 30 }, "Close Editor")) 
         state->showMenu = false;
+
+    if (GuiButton({ 60, 560, 100, 20 }, "Help")) {
+        state->showHelp = true;
+        state->isPaused = true;
+    }
+}
+
+
+void Renderer::drawHelp() {
+    float w = windowWidth * 0.5f;
+    float h = windowHeight * 0.5f;
+    float x = (windowWidth - w) / 2.0f;
+    float y = (windowHeight - h) / 2.0f;
+
+    std::string helpContent = 
+        "F: Toggle Fullscreen\n"
+        "E: Pause Simulation\n"
+        "C: Clear Simulation\n"
+        "ESC: Unlock Camera\n"
+        "Click: Enter Camera\n"
+        "Right Click: Delete Planet";
+
+    GuiGroupBox({x, y, w, h }, "Help");
+
+    DrawText(helpContent.c_str(), x+20.0f, y+40.0f, 30, WHITE);
+
+    if (GuiButton({ x+w-170, y+h-50, 160, 40 }, "Close")) {
+        state->showHelp = false;
+        state->isPaused = false;
+    }
 }
