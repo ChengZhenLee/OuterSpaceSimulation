@@ -25,6 +25,7 @@ include_directories(
 
 # Link the library files
 if(WIN32)
+    # Window systems
     target_link_libraries(OuterSpaceSimulation 
         PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/lib/libraylib.a"
@@ -32,7 +33,8 @@ if(WIN32)
         gdi32
         winmm
     )
-else(APPLE)
+elseif(APPLE)
+    # Apple systems
     find_library(RAYLIB_LIB raylib)
 
     target_link_libraries(OuterSpaceSimulation 
@@ -42,5 +44,18 @@ else(APPLE)
         "-framework Cocoa"
         "-framework OpenGL"
         "-framework CoreVideo"
+    )
+else()
+    # Linux and other Unix-like systems
+    find_library(RAYLIB_LIB raylib)
+
+    target_link_libraries(OuterSpaceSimulation 
+        PRIVATE
+        ${RAYLIB_LIB}
+        GL
+        X11
+        pthread
+        dl
+        m
     )
 endif()
