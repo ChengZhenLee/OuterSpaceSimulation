@@ -14,7 +14,8 @@ void calculatePotentialEnergy(
 ) 
 {
     int length = masses.size(); 
-    T softening(1);
+    //acceleration can get too strong, so we soften the formula
+    T softening(20.0);
     for (int i = 0; i < length; i++) {
         for (int j = i + 1; j < length; j++) {
             T r = (positions[i] - positions[j]).norm();
